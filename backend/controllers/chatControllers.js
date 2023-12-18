@@ -80,7 +80,7 @@ export const createGroupChat = async (req, res) => {
 
     var users = req.body.users;
 
-    if (users.length < 2) {
+    if (users.length < 1) {
         return res.status(400).send("More than 2 users are required to form a group chat");
     }
 
