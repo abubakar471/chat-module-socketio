@@ -6,6 +6,7 @@ import dotenv from "dotenv"
 import mongoose from "mongoose"
 import colors from "colors"
 import { Server } from "socket.io"
+import cors from "cors"
 const io = new Server(server, {
     pingTimeout: 60000,
     cors: {
