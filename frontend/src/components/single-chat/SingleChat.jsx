@@ -8,14 +8,33 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import "./styles.css";
 import ScrollableChat from "../scrollable-chat/ScrollableChat";
+import io from "socket.io-client";
+import Lottie from "react-lottie";
+import animationData from "../../animations/typing.json";
+
+
+const ENDPOINT = "http://localhost:8000";
+var socket, selectedChatCompare;
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(false);
     const [newMessage, setNewMessage] = useState("");
+    const [socketConnected, setSocketConnected] = useState(false);
+    const [typing, setTyping] = useState(false);
+    const [isTyping, setIsTyping] = useState(false);
 
     const { user, selectedChat, setSelectedChat } = ChatState();
     const toast = useToast();
+
+    const defaultOptions = {
+        loop: true,
+        autoplay: true,
+        animationData: animationData,
+        rendererSettings: {
+            preserveAspectRatio: "xMidYMid slice",
+        },
+    };
 
     const fetchMessages = async () => {
         if (!selectedChat) return;
@@ -31,6 +50,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             const { data } = await axios.get(`/api/message/${selectedChat._id}`, config);
             console.log(data);
             setMessages(data);
+            socket.emit("join chat", selectedChat._id);
         } catch (err) {
             console.log(err);
             toast({
@@ -47,6 +67,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
     const sendMessage = async (e) => {
         if (e.key === "Enter" && newMessage) {
+            socket.emit("stop typing", selectedChat._id);
             try {
                 const config = {
                     headers: {
@@ -63,6 +84,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 }, config);
                 console.log(data);
 
+                socket.emit("new message", data);
                 setMessages([...messages, data]);
             } catch (err) {
                 console.log(err);
@@ -81,11 +103,48 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         setNewMessage(e.target.value);
 
         // typing indicator logic
+        if (!socketConnected) return;
+
+        if (!typing) {
+            setTyping(true);
+            socket.emit("typing", selectedChat._id);
+        }
+        let lastTypingTime = new Date().getTime();
+        var timerLength = 3000;
+        setTimeout(() => {
+            var timeNow = new Date().getTime();
+            var timeDiff = timeNow - lastTypingTime;
+            if (timeDiff >= timerLength && typing) {
+                socket.emit("stop typing", selectedChat._id);
+                setTyping(false);
+            }
+        }, timerLength);
     }
+
+    // initializing socket very first at frontend
+    useEffect(() => {
+        socket = io(ENDPOINT);
+        socket.emit("setup", user);
+        socket.on("connected", () => setSocketConnected(true));
+        socket.on("typing", () => setIsTyping(true));
+        socket.on("stop typing", () => setIsTyping(false));
+    }, [])
 
     useEffect(() => {
         fetchMessages();
+
+        selectedChatCompare = selectedChat;
     }, [selectedChat]);
+
+    useEffect(() => {
+        socket.on("message received", (newMessageReceived) => {
+            if (!selectedChatCompare || selectedChatCompare._id !== newMessageReceived.chat._id) {
+                // give notification
+            } else {
+                setMessages([...messages, newMessageReceived]);
+            }
+        })
+    })
 
     return (
         <>
@@ -108,7 +167,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                             )
                         }
                     </Text>
-
+                    {socketConnected ? "connected" : "not connected"}
                     <Box
                         display="flex"
                         flexDir="column"
@@ -138,6 +197,15 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                         }
 
                         <FormControl onKeyDown={sendMessage} isRequired mt={3}>
+                            {isTyping ? (
+                                <div>
+                                    <Lottie
+                                        options={defaultOptions}
+                                        width={70}
+                                        style={{ marginBottom: 15, marginLeft: 0 }}
+                                    />
+                                </div>
+                            ) : (<></>)}
                             <Input placeholder="what's on your mind..." variant="filled" bg="#E0E0E0" value={newMessage} onChange={typingHandler} />
                         </FormControl>
                     </Box>

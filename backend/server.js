@@ -1,9 +1,19 @@
 import express from "express"
+import http from "http"
 const app = express();
+const server = http.createServer(app);
 import dotenv from "dotenv"
 import mongoose from "mongoose"
 import colors from "colors"
+import { Server } from "socket.io"
+const io = new Server(server, {
+    pingTimeout: 60000,
+    cors: {
+        origin: "http://localhost:3000"
+    }
+})
 dotenv.config();
+
 
 // routes
 import userRoutes from "./routes/userRoutes.js";
@@ -28,6 +38,40 @@ app.use("/api/message", messageRoutes);
 
 const port = process.env.PORT || 8000;
 
-app.listen(port, () => {
+server.listen(port, () => {
     console.log(`server is running on port ${port}`.yellow.bold);
+})
+
+io.on("connection", (socket) => {
+    socket.on("setup", (userData) => {
+        socket.join(userData._id);
+        socket.emit("connected");
+    })
+
+    socket.on("join chat", (room) => {
+        socket.join(room);
+        console.log("user joined room : ", room);
+    })
+
+    socket.on("new message", (newMessageReceived) => {
+        var chat = newMessageReceived.chat;
+
+        if (!chat.users) return console.log("chat.users is not defined");
+
+        chat.users.forEach(user => {
+            if (user._id === newMessageReceived.sender._id) return;
+
+            socket.in(user._id).emit("message received", newMessageReceived);
+        });
+    })
+
+    socket.on("typing", (room) => socket.in(room).emit("typing"));
+
+    socket.on("stop typing", (room) => socket.in(room).emit("stop typing"));
+
+    // clean up
+    socket.off("setup", () => {
+        console.log("user disconnected");
+        socket.leave(userData._id);
+    })
 })
