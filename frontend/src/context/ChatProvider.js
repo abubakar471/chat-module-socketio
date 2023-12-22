@@ -11,7 +11,7 @@ const ChatProvixer = ({ children }) => {
 
     const navigate = useNavigate();
     axios.defaults.baseURL = process.env.REACT_APP_API_URL;
-    axios.defaults.headers.common["Authorization"] = `Bearer ${user.token}`;
+    // axios.defaults.headers.common["Authorization"] = `Bearer ${user.token}`;
 
     axios.interceptors.response.use(
         function (response) {
