@@ -82,7 +82,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                     content: newMessage,
                     chatId: selectedChat._id
                 }, config);
-                console.log(data);
 
                 socket.emit("new message", data);
                 setMessages([...messages, data]);
@@ -167,7 +166,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                             )
                         }
                     </Text>
-                    {socketConnected ? "connected" : "not connected"}
                     <Box
                         display="flex"
                         flexDir="column"
