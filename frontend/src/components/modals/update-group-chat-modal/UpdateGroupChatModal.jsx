@@ -54,7 +54,7 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, fetchMessages }) => {
 
     const handleRemove = async (user1) => {
 
-        if (selectedChat.groupAdmin._id !== user1._id && user1._id !== user._id) {
+        if (selectedChat.groupAdmin._id !== user._id && user1._id !== user._id) {
             toast({
                 title: "Only admins can remove someone",
                 status: "error",
@@ -117,8 +117,8 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, fetchMessages }) => {
         }
     }
 
-    const handleAddUser = async (user) => {
-        if (selectedChat.users.find(u => u._id === user._id)) {
+    const handleAddUser = async (user1) => {
+        if (selectedChat.users.find(u => u._id === user1._id)) {
             toast({
                 title: "User already exists",
                 status: "error",
@@ -129,7 +129,7 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, fetchMessages }) => {
 
             return;
         }
-
+        
         if (selectedChat.groupAdmin._id !== user._id) {
             toast({
                 title: "Only admins can add someone",
@@ -151,9 +151,9 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, fetchMessages }) => {
                 }
             }
 
-            const { data } = await axios.put(`/api/chat/groupAdd`, {
+            const { data } = await axios.put(`/api/chat/group-add`, {
                 chatId: selectedChat._id,
-                userId: user._id
+                userId: user1._id
             }, config);
 
             setSelectedChat(data);
