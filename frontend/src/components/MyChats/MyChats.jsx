@@ -51,6 +51,7 @@ const MyChats = ({ fetchAgain }) => {
         >
             <Box
                 display="flex"
+                flexWrap="wrap"
                 alignItems="center"
                 justifyContent="space-between"
                 w="100%"
@@ -59,7 +60,7 @@ const MyChats = ({ fetchAgain }) => {
                 px={3}
                 fontSize={{ base: "28px", md: "30px" }}
             >
-                My Chats
+                All
                 <GroupChatModal>
                     <Button
                         display="flex"
