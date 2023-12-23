@@ -127,9 +127,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         socket.emit("setup", user);
         socket.on("connected", () => setSocketConnected(true));
         socket.on("typing", (chatId) => {
-            if(chatId === user._id) {
+            if (chatId === selectedChatCompare._id) {
                 setIsTyping(true);
-            } 
+            }
         });
         socket.on("stop typing", () => setIsTyping(false));
     }, [])
