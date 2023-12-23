@@ -16,7 +16,7 @@ const HomePage = () => {
         }
 
     }, [navigate]);
-    
+
     return (
         <div className={styles.home__conatiner}>
             <Container maxW="xl" centerContent>
@@ -25,7 +25,7 @@ const HomePage = () => {
                 </Box>
 
                 <Box bg="white" w="100%" p={4} borderRadius="lg" borderWidth="1px" color="black">
-                    <Tabs variant='soft-rounded' colorScheme='yellow'>
+                    <Tabs isFitted variant='enclosed' colorScheme='yellow'>
                         <TabList mb={"1em"}>
                             <Tab width={"50%"}>Sign In</Tab>
                             <Tab width={"50%"}>Sign Up</Tab>
