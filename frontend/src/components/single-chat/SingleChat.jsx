@@ -4,7 +4,7 @@ import { ArrowBackIcon } from "@chakra-ui/icons";
 import { getSender, getSenderFull } from "../../config/chatLogics";
 import ProfileModal from "../modals/profile-modal/ProfileModal";
 import UpdateGroupChatModal from "../modals/update-group-chat-modal/UpdateGroupChatModal";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import "./styles.css";
 import ScrollableChat from "../scrollable-chat/ScrollableChat";
@@ -24,6 +24,16 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     const [socketConnected, setSocketConnected] = useState(false);
     const [typing, setTyping] = useState(false);
     const [isTyping, setIsTyping] = useState(false);
+    const ref = useRef(null);
+
+    useEffect(() => {
+        if (messages.length) {
+            ref.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "end",
+            });
+        }
+    }, [messages.length]);
 
     const { user, selectedChat, setSelectedChat, notification, setNotification } = ChatState();
     const toast = useToast();
@@ -197,6 +207,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                                     {/* messages  */}
                                     <div className="messages">
                                         <ScrollableChat messages={messages} />
+                                        <div ref={ref} />
                                     </div>
                                 </>
                             )

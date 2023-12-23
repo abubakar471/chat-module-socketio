@@ -38,6 +38,7 @@ const ScrollableChat = ({ messages }) => {
                             {m.content}
                         </span>
                     </div>
+                    
                 ))
             }
         </ScrollableFeed>
