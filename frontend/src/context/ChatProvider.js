@@ -8,6 +8,7 @@ const ChatProvixer = ({ children }) => {
     const [user, setUser] = useState(null);
     const [selectedChat, setSelectedChat] = useState(null);
     const [chats, setChats] = useState(null);
+    const [notification, setNotification] = useState([]);
 
     const navigate = useNavigate();
     axios.defaults.baseURL = process.env.REACT_APP_API_URL;
@@ -40,7 +41,7 @@ const ChatProvixer = ({ children }) => {
     }, [navigate]);
 
     return (
-        <ChatContext.Provider value={{ user, setUser, selectedChat, setSelectedChat, chats, setChats }}>{children}</ChatContext.Provider>
+        <ChatContext.Provider value={{ user, setUser, selectedChat, setSelectedChat, chats, setChats, notification, setNotification }}>{children}</ChatContext.Provider>
     )
 }
 

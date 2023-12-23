@@ -12,8 +12,9 @@ import io from "socket.io-client";
 import Lottie from "react-lottie";
 import animationData from "../../animations/typing.json";
 
+// const ENDPOINT = "http://localhost:8000"
 
-const ENDPOINT = "https://chat-module.onrender.com"
+const ENDPOINT = process.env.REACT_APP_API_URL;
 var socket, selectedChatCompare;
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
@@ -24,7 +25,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     const [typing, setTyping] = useState(false);
     const [isTyping, setIsTyping] = useState(false);
 
-    const { user, selectedChat, setSelectedChat } = ChatState();
+    const { user, selectedChat, setSelectedChat, notification, setNotification } = ChatState();
     const toast = useToast();
 
     const defaultOptions = {
@@ -139,6 +140,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         socket.on("message received", (newMessageReceived) => {
             if (!selectedChatCompare || selectedChatCompare._id !== newMessageReceived.chat._id) {
                 // give notification
+                if (!notification.includes(newMessageReceived)) {
+                    setNotification([newMessageReceived, ...notification]);
+                    setFetchAgain(!fetchAgain);
+                }
             } else {
                 setMessages([...messages, newMessageReceived]);
             }

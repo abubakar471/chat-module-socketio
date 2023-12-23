@@ -10,7 +10,7 @@ import cors from "cors"
 const io = new Server(server, {
     pingTimeout: 60000,
     cors: {
-        origin: "https://app-chat-module.vercel.app"
+        origin: process.env.CLIENT_URL
     }
 })
 dotenv.config();
@@ -34,7 +34,7 @@ mongoose.connect(process.env.MONGO_URI)
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors({
-    origin : process.env.CLIENT_URL
+    origin: process.env.CLIENT_URL
 }))
 app.use("/api/user", userRoutes);
 app.use("/api/chat", chatRoutes);
