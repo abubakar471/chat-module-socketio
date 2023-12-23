@@ -9,7 +9,7 @@ import GroupChatModal from "../modals/group-chat-modal/GroupChatModal";
 
 const MyChats = ({ fetchAgain }) => {
     const [loggedInUser, setLoggedInUser] = useState(false);
-    const { user, chats, setChats, selectedChat, setSelectedChat } = ChatState();
+    const { user, chats, setChats, selectedChat, setSelectedChat, notification, setNotification } = ChatState();
     const toast = useToast();
 
     const fetchChats = async () => {
@@ -87,7 +87,10 @@ const MyChats = ({ fetchAgain }) => {
                                 chats.map((chat) => (
                                     <Box
                                         key={chat._id}
-                                        onClick={() => setSelectedChat(chat)}
+                                        onClick={() => {
+                                            setNotification(notification.filter(n => n.chat !== chat._id));
+                                            setSelectedChat(chat);
+                                        }}
                                         cursor="pointer"
                                         borderRadius="lg"
                                         px={3}
