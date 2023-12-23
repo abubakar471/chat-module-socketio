@@ -49,7 +49,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             setLoading(true);
 
             const { data } = await axios.get(`/api/message/${selectedChat._id}`, config);
-            console.log(data);
             setMessages(data);
             socket.emit("join chat", selectedChat._id);
         } catch (err) {
@@ -127,7 +126,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         socket.emit("setup", user);
         socket.on("connected", () => setSocketConnected(true));
         socket.on("typing", (chatId) => {
-            if (chatId === selectedChatCompare._id) {
+            if (selectedChatCompare && chatId === selectedChatCompare._id) {
                 setIsTyping(true);
             }
         });

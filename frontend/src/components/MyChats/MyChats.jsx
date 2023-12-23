@@ -88,7 +88,7 @@ const MyChats = ({ fetchAgain }) => {
                                     <Box
                                         key={chat._id}
                                         onClick={() => {
-                                            setNotification(notification.filter(n => n.chat !== chat._id));
+                                            setNotification(notification.filter(n => n.chat._id !== chat._id));
                                             setSelectedChat(chat);
                                         }}
                                         cursor="pointer"
