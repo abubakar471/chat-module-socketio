@@ -1,7 +1,8 @@
 import ScrollableFeed from "react-scrollable-feed"
 import { isLastMessage, isSameSender, isSameSenderMargin, isSameUser } from "../../config/chatLogics"
 import { ChatState } from "../../context/ChatProvider"
-import { Avatar, Tooltip } from "@chakra-ui/react";
+import { Avatar, Image, Tooltip } from "@chakra-ui/react";
+import PreviewFileModal from "../modals/preview-file-modal/PreviewFileModal";
 
 const ScrollableChat = ({ messages }) => {
     const { user } = ChatState();
@@ -24,21 +25,30 @@ const ScrollableChat = ({ messages }) => {
                                     />
                                 </Tooltip>
                             )}
-                        <span
-                            style={{
-                                backgroundColor: `${m.sender._id === user._id ? "#BEE3F8" : "#B9F5D0"
-                                    }`,
-                                marginLeft: isSameSenderMargin(messages, m, i, user._id),
-                                marginTop: isSameUser(messages, m, i, user._id) ? 3 : 10,
-                                borderRadius: "20px",
-                                padding: "5px 15px",
-                                maxWidth: "75%",
-                            }}
-                        >
-                            {m.content}
-                        </span>
+                        <div style={{
+                            backgroundColor: `${m.sender._id === user._id ? "#BEE3F8" : "#B9F5D0"
+                                }`,
+                            marginLeft: isSameSenderMargin(messages, m, i, user._id),
+                            marginTop: isSameUser(messages, m, i, user._id) ? 3 : 10,
+                            borderRadius: "20px",
+                            padding: "5px 15px",
+                            maxWidth: "75%",
+                        }}>
+                            <div style={{ cursor: "pointer" }}>
+                                {m.file && (
+                                    <PreviewFileModal file={m.file}>
+                                        <Image src={m.file} alt={m.file} width={150} height={150} className="w-[150px] h=[150px] object-cover rounded-md my-2" />
+                                    </PreviewFileModal>
+                                )}
+                            </div>
+                            <div>
+                                <span >
+                                    {m.content}
+                                </span>
+                            </div>
+                        </div>
                     </div>
-                    
+
                 ))
             }
         </ScrollableFeed>

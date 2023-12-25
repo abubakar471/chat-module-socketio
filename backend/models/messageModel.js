@@ -8,6 +8,9 @@ const messageSchema = new mongoose.Schema({
     content: {
         type: String, trim: true
     },
+    file: {
+        type: String
+    },
     chat: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Chat"

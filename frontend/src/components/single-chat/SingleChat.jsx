@@ -1,4 +1,4 @@
-import { Box, FormControl, IconButton, Input, Spinner, Text, useToast } from "@chakra-ui/react";
+import { Box, CircularProgress, FormControl, IconButton, Image, Input, Spinner, Text, useToast } from "@chakra-ui/react";
 import { ChatState } from "../../context/ChatProvider"
 import { ArrowBackIcon } from "@chakra-ui/icons";
 import { getSender, getSenderFull } from "../../config/chatLogics";
@@ -11,6 +11,9 @@ import ScrollableChat from "../scrollable-chat/ScrollableChat";
 import io from "socket.io-client";
 import Lottie from "react-lottie";
 import animationData from "../../animations/typing.json";
+import { GrAttachment } from "react-icons/gr";
+import { IoCheckmarkSharp } from "react-icons/io5";
+import { IoCheckmarkDone } from "react-icons/io5";
 
 // const ENDPOINT = "http://localhost:8000"
 
@@ -24,6 +27,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     const [socketConnected, setSocketConnected] = useState(false);
     const [typing, setTyping] = useState(false);
     const [isTyping, setIsTyping] = useState(false);
+    const [uploading, setUploading] = useState(false);
+    const [file, setFile] = useState("");
+
     const ref = useRef(null);
 
     useEffect(() => {
@@ -90,6 +96,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
                 const { data } = await axios.post("/api/message", {
                     content: newMessage,
+                    file : file,
                     chatId: selectedChat._id
                 }, config);
 
@@ -128,6 +135,49 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 setTyping(false);
             }
         }, timerLength);
+    }
+
+    const uploadFile = (pic) => {
+        setUploading(true);
+
+        if (pic === undefined) {
+            toast({
+                title: "Please select an image",
+                status: "warning",
+                duration: 5000,
+                isClosable: true,
+                position: "bottom"
+            })
+
+            return;
+        }
+
+        if (pic.type === "image/jpeg" || pic.type === "image/png") {
+            const data = new FormData();
+            data.append("file", pic);
+            data.append("upload_preset", "chat-app");
+            data.append("cloud_name", "dex1j2qai");
+
+            fetch("https://api.cloudinary.com/v1_1/dex1j2qai/image/upload", {
+                method: "post",
+                body: data
+            }).then(res => res.json())
+                .then((data) => {
+                    setFile(data.url.toString());
+                    console.log('msg image : ', data.url.toString());
+                    setUploading(false);
+                })
+        } else {
+            toast({
+                title: "Please select an image",
+                status: "warning",
+                duration: 5000,
+                isClosable: true,
+                position: "bottom"
+            })
+            setUploading(false);
+            return;
+        }
     }
 
     // initializing socket very first at frontend
@@ -193,7 +243,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                         w="100%"
                         h="100%"
                         borderRadius="lg"
-                        overflowY="hiddene"
+                        overflowY="hidden"
                     >
                         {
                             loading ? (<Spinner
@@ -213,17 +263,38 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                             )
                         }
 
-                        <FormControl onKeyDown={sendMessage} isRequired mt={3}>
-                            {isTyping ? (
-                                <div>
-                                    <Lottie
-                                        options={defaultOptions}
-                                        width={70}
-                                        style={{ marginBottom: 15, marginLeft: 0 }}
-                                    />
-                                </div>
-                            ) : (<></>)}
-                            <Input placeholder="what's on your mind..." variant="filled" bg="#E0E0E0" value={newMessage} onChange={typingHandler} />
+                        {file && (
+                            <div className="w-full flex items-center gap-x-2">
+                                <Image src={file} alt="uploaded-file" width={20} height={20} className="w-[60px] h-[60px] object-cover p-2 rounded-md" />
+                                <p>
+                                    {file.length > 24 ? file.slice(0, 24) + "..." : file}
+                                </p>
+                            </div>
+                        )}
+
+                        {isTyping ? (
+                            <div>
+                                <Lottie
+                                    options={defaultOptions}
+                                    width={40}
+                                    height={20}
+                                    style={{ marginBottom: 15, marginLeft: 0 }}
+                                />
+                            </div>
+                        ) : (<></>)}
+                        <FormControl onKeyDown={sendMessage} isRequired mt={3} display="flex" alignItems="center">
+                            <Input placeholder="what's on your mind..." variant="filled" bg="#E0E0E0" value={newMessage} onChange={typingHandler} autoComplete="off" />
+
+                            <div className="px-2 ml-2">
+                                <label style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "12px", backgroundColor: "#BEE3F8", cursor: "pointer", borderRadius: "5px", margin: "0 5px" }} >
+                                    <input disabled={uploading} type="file" onChange={e => uploadFile(e.target.files[0])} style={{ display: "none" }} />
+                                    {uploading ? <Spinner size="sm" /> : (
+                                        !file ? (<GrAttachment />) : (
+                                            <IoCheckmarkDone size="1.2rem" color="green" className="font-semibold text-[18px]" />
+                                        )
+                                    )}
+                                </label>
+                            </div>
                         </FormControl>
                     </Box>
                 </>

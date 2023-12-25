@@ -3,7 +3,7 @@ import User from "../models/userModel.js";
 import Chat from "../models/chatModel.js";
 
 export const sendMessage = async (req, res) => {
-    const { content, chatId } = req.body;
+    const { content, chatId, file } = req.body;
 
     if (!content || !chatId) {
         console.log("Invalid data passed into request");
@@ -13,6 +13,7 @@ export const sendMessage = async (req, res) => {
     var newMessage = {
         sender: req.user._id,
         content: content,
+        file : file,
         chat: chatId
     }
 
