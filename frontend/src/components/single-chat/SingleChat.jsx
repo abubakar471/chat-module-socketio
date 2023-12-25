@@ -93,6 +93,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 }
 
                 setNewMessage("");
+                setFile("");
 
                 const { data } = await axios.post("/api/message", {
                     content: newMessage,
