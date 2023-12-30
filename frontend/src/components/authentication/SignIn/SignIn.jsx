@@ -49,7 +49,7 @@ const SignIn = () => {
                 })
             }
             setIsLoading(false);
-            localStorage.setItem("userInfo", JSON.stringify(data));
+            localStorage.setItem("userInfo", JSON.stringify(data.user));
             navigate("/chat");
         } catch (err) {
             console.log(err);

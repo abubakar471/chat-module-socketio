@@ -10,6 +10,8 @@ const ChatProvixer = ({ children }) => {
     const [chats, setChats] = useState(null);
     const [notification, setNotification] = useState([]);
 
+
+
     const navigate = useNavigate();
     axios.defaults.baseURL = process.env.REACT_APP_API_URL;
     // axios.defaults.headers.common["Authorization"] = `Bearer ${user.token}`;
@@ -32,6 +34,35 @@ const ChatProvixer = ({ children }) => {
 
     useEffect(() => {
         const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+        // const userNotification = JSON.parse(localStorage.getItem("userNotification"));
+
+        // if (userNotification?.length > 0) {
+        //     setNotification(userNotification);
+        // }
+
+        if (userInfo) {
+            const fetchNotifications = async () => {
+
+                const config = {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${userInfo.token}`
+                    }
+                }
+
+                const { data } = await axios.get(`${process.env.REACT_APP_API_URL}/api/user/notifications`, config);
+
+                console.log(data);
+
+                if (data?.length > 0) {
+                    setNotification(data);
+                }
+            }
+
+            fetchNotifications();
+        }
+
+
         setUser(userInfo);
 
         if (!userInfo) {

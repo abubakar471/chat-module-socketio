@@ -9,7 +9,7 @@ import ChatLoading from "../../loading/ChatLoding";
 import UserListItem from "../../user/UserListItem";
 import { getSender } from "../../../config/chatLogics";
 import NotificationBadge from 'react-notification-badge';
-import {Effect} from 'react-notification-badge';
+import { Effect } from 'react-notification-badge';
 
 const SideDrawer = () => {
     const [search, setSearch] = useState("");
@@ -97,6 +97,19 @@ const SideDrawer = () => {
 
     }
 
+    const removeNotification = async (notif) => {
+        const config = {
+            headers: {
+                "Content-type": "application/json",
+                authorization: `Bearer ${user.token}`
+            }
+        }
+
+        const { data } = await axios.post("/api/user/remove-notification", {
+            messageId: notif._id,
+        }, config);
+    }
+
     return (
         <>
             <Box display="flex" alignItems="center" justifyContent="space-between" bg="white" w="100%" p="5px 10px 5px 10px" borderWidth="5px">
@@ -119,6 +132,7 @@ const SideDrawer = () => {
                                 <MenuItem key={notif._id} onClick={() => {
                                     setSelectedChat(notif.chat);
                                     setNotification(notification.filter(n => n !== notif));
+                                    removeNotification(notif);
                                 }}>
                                     {
                                         notif.chat.isGroupChat ? `New message in ${notif.chat.chatName}` : (

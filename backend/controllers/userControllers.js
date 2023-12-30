@@ -1,5 +1,7 @@
 import User from "../models/userModel.js";
 import { generateToken } from "../config/generateToken.js";
+import Chat from "../models/chatModel.js";
+import Message from "../models/messageModel.js";
 
 export const SignUp = async (req, res) => {
     const { name, email, password, pic } = req.body;
@@ -42,11 +44,14 @@ export const authUser = async (req, res) => {
 
     if (user && (await user.matchPassword(password))) {
         res.json({
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            pic: user.pic,
-            token: generateToken(user._id)
+            user: {
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                pic: user.pic,
+                token: generateToken(user._id)
+            },
+            notification: user.notification
         })
     } else {
         res.status(401);
@@ -68,3 +73,107 @@ export const allUsers = async (req, res) => {
 
     res.json(users);
 }
+
+export const getNotifications = async (req, res) => {
+    // try {
+    //     const user = await User.findById(req.user._id)
+
+    //     const notifications = user.notification;
+    //     console.log(notifications)
+
+    //     let nots = [];
+
+    //     notifications.map((n) => {
+    //         const findMessage = async () => {
+    //             const message = await Message.findById(n).populate("sender chat");
+
+    //             console.log(message)
+    //         }
+
+    //         findMessage()
+    //     })
+
+
+
+    //     console.log(nots);
+    //     // console.log("notifications : ", user)
+
+    // } catch (err) {
+    //     console.log(err);
+    //     res.status(401);
+    // }
+
+    try {
+        const user = await User.findById(req.user._id);
+
+        const notifications = user.notification
+
+        // console.log("new notifications : ", notifications);
+        res.status(200).json(notifications);
+
+    } catch (err) {
+        console.log(err);
+        res.status(401);
+    }
+}
+
+export const saveNotification = async (req, res) => {
+    // const { messageId, userId } = req.body;
+
+    // try {
+    //     const user = await User.findById(userId);
+    //     const notifications = user.notification;
+    //     notifications.unshift(messageId);
+
+    //     const savedNotification = await User.findByIdAndUpdate(userId, { notification: notifications }, { new: true });
+
+    //     res.json({ success: true });
+    // } catch (err) {
+    //     console.log(err);
+    //     return res.status(400).json("Error Saving Notification");
+    // }
+
+    const { message } = req.body;
+
+    try {
+        const user = await User.findById(req.user._id);
+        let notifications = user.notification;
+
+        const existedMessage = notifications.find(n => n.chat._id === message.chat._id);
+
+        console.log("exists : ", existedMessage);
+
+        if (!existedMessage) {
+            notifications.unshift(message);
+
+            console.log("saving these notifs : ", notifications)
+
+            const savedNotification = await User.findByIdAndUpdate(req.user._id, { notification: notifications }, { new: true });
+
+            res.json({ success: true });
+        }
+    } catch (err) {
+        console.log(err);
+        return res.status(400).json("Error Saving Notification");
+    }
+
+}
+
+export const removeNotification = async (req, res) => {
+    const { messageId } = req.body;
+
+    try {
+        const user = await User.findById(req.user._id);
+        const notifications = user.notification;
+        let removedNotifications = notifications.filter(n => n._id !== messageId);
+
+        console.log("removed notifications tray : ", removedNotifications);
+        const savedNotification = await User.findByIdAndUpdate(req.user._id, { notification: removedNotifications }, { new: true });
+
+        res.json({ success: true });
+    } catch (err) {
+        console.log(err);
+        return res.status(400).json("Error Saving Notification");
+    }
+
+} 

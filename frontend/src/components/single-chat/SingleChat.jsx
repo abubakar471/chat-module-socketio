@@ -14,10 +14,11 @@ import animationData from "../../animations/typing.json";
 import { GrAttachment } from "react-icons/gr";
 import { IoCheckmarkSharp } from "react-icons/io5";
 import { IoCheckmarkDone } from "react-icons/io5";
+import addNotification from "react-push-notification";
 
-// const ENDPOINT = "http://localhost:8000"
+const ENDPOINT = "http://localhost:8000"
 
-const ENDPOINT = process.env.REACT_APP_API_URL;
+// const ENDPOINT = process.env.REACT_APP_API_URL;
 var socket, selectedChatCompare;
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
@@ -97,7 +98,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
                 const { data } = await axios.post("/api/message", {
                     content: newMessage,
-                    file : file,
+                    file: file,
                     chatId: selectedChat._id
                 }, config);
 
@@ -181,6 +182,21 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         }
     }
 
+    const saveNotification = async (message) => {
+        console.log("saving this notification : ", message);
+
+        const config = {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${user.token}`
+            }
+        }
+        const { data } = await axios.post("/api/user/save-notification", {
+            message: message,
+            userId: user._id
+        }, config);
+    }
+
     // initializing socket very first at frontend
     useEffect(() => {
         socket = io(ENDPOINT);
@@ -207,6 +223,17 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 if (!notification.includes(newMessageReceived)) {
                     setNotification([newMessageReceived, ...notification]);
                     setFetchAgain(!fetchAgain);
+                    addNotification({
+                        title: `New Message`,
+                        message: newMessageReceived.content.length > 20 ? newMessageReceived.content.slice(0, 20) + "..." : newMessageReceived.content,
+                        duration: 4000,
+                        icon: "/logo192.png",
+                        native: true
+                    });
+
+                    // save notification in database
+                    saveNotification(newMessageReceived);
+
                 }
             } else {
                 setMessages([...messages, newMessageReceived]);
