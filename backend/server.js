@@ -10,7 +10,7 @@ import cors from "cors"
 const io = new Server(server, {
     pingTimeout: 60000,
     cors: {
-        origin: "http://localhost:3000"
+        origin: process.env.CLIENT_URL
     }
 })
 dotenv.config();

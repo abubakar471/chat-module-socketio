@@ -16,9 +16,9 @@ import { IoCheckmarkSharp } from "react-icons/io5";
 import { IoCheckmarkDone } from "react-icons/io5";
 import addNotification from "react-push-notification";
 
-const ENDPOINT = "http://localhost:8000"
+// const ENDPOINT = "http://localhost:8000"
 
-// const ENDPOINT = process.env.REACT_APP_API_URL;
+const ENDPOINT = process.env.REACT_APP_API_URL;
 var socket, selectedChatCompare;
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
