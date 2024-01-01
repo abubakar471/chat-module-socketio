@@ -7,6 +7,10 @@ import mongoose from "mongoose"
 import colors from "colors"
 import { Server } from "socket.io"
 import cors from "cors"
+import FCM from "fcm-node"
+const serverKey = "AAAA1LiUmbA:APA91bG4OwUARY4L9FJZyzoYob6WOirhTTOjX4R0PpkIfG9QIpg7O6ICy7LbRkuxkt5GhntST8YdhRBKe6x6ZRZv5Qoi6ihzjbkSGTGJtos1T1J1qaIoEfqVRMWH2knmL81wD79pOO88"
+const fcm = new FCM(serverKey);
+
 const io = new Server(server, {
     pingTimeout: 60000,
     cors: {
@@ -22,6 +26,8 @@ import chatRoutes from "./routes/chatRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
 
 import { notFound, errorHandler } from "./middlewares/errorMiddleware.js"
+import User from "./models/userModel.js";
+import firebase from "./firebase/index.js";
 
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {
@@ -62,8 +68,35 @@ io.on("connection", (socket) => {
 
         if (!chat.users) return console.log("chat.users is not defined");
 
-        chat.users.forEach(user => {
+        chat.users.forEach(async (user) => {
             if (user._id === newMessageReceived.sender._id) return;
+
+            const getUser = await User.findById(user._id);
+            let notifications = getUser.notification;
+
+            const existedMessage = notifications.find(n => n.chat._id === newMessageReceived.chat._id);
+
+            if (!existedMessage) {
+                notifications.unshift(newMessageReceived);
+
+                const savedNotification = await User.findByIdAndUpdate(user._id, { notification: notifications }, { new: true });
+            }
+
+            try {
+                let message = {
+                    token: getUser.fcmToken.toString(),
+                    notification: {
+                        title: "New Message",
+                        body: newMessageReceived.content.toString().length > 40 ? newMessageReceived.content.toString().slice(0, 40) + "..." : newMessageReceived.content.toString(),
+                        image: "https://www.freepnglogos.com/uploads/discord-logo-png/discord-will-provide-official-verification-esports-team-4.png"
+                    }
+                }
+                const response = await firebase.messaging().send(message);
+
+                console.log("message sent payload : ", response);
+            } catch (err) {
+                console.log(err);
+            }
 
             socket.in(user._id).emit("message received", newMessageReceived);
         });

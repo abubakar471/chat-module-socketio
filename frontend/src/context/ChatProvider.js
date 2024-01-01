@@ -22,6 +22,7 @@ const ChatProvixer = ({ children }) => {
         },
         function (error) {
             let res = error.response;
+            console.log(error);
             if (res.status === 401 && res.config && !res.config.__isRetryRequest) {
                 setUser(null);
                 setSelectedChat(null);

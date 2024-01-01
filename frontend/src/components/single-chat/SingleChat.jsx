@@ -14,7 +14,8 @@ import animationData from "../../animations/typing.json";
 import { GrAttachment } from "react-icons/gr";
 import { IoCheckmarkSharp } from "react-icons/io5";
 import { IoCheckmarkDone } from "react-icons/io5";
-import addNotification from "react-push-notification";
+// import addNotification from "react-push-notification";
+import serviceKey from "../../servcie_key.json"
 
 // const ENDPOINT = "http://localhost:8000"
 
@@ -183,8 +184,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     }
 
     const saveNotification = async (message) => {
-        console.log("saving this notification : ", message);
-
         const config = {
             headers: {
                 "Content-Type": "application/json",
@@ -223,17 +222,17 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 if (!notification.includes(newMessageReceived)) {
                     setNotification([newMessageReceived, ...notification]);
                     setFetchAgain(!fetchAgain);
-                    addNotification({
-                        title: `New Message`,
-                        message: newMessageReceived.content.length > 20 ? newMessageReceived.content.slice(0, 20) + "..." : newMessageReceived.content,
-                        duration: 4000,
-                        icon: "/logo192.png",
-                        native: true
-                    });
+                    // addNotification({
+                    //     title: `New Message`,
+                    //     message: newMessageReceived.content.length > 20 ? newMessageReceived.content.slice(0, 20) + "..." : newMessageReceived.content,
+                    //     duration: 4000,
+                    //     icon: "/logo192.png",
+                    //     native: true
+                    // });
 
                     // save notification in database
-                    saveNotification(newMessageReceived);
 
+                    saveNotification(newMessageReceived);
                 }
             } else {
                 setMessages([...messages, newMessageReceived]);

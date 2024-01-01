@@ -39,16 +39,23 @@ export const SignUp = async (req, res) => {
 }
 
 export const authUser = async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, fcmToken } = req.body;
+
     const user = await User.findOne({ email: email });
 
+    console.log("fcm_token : ", fcmToken);
+
     if (user && (await user.matchPassword(password))) {
+        if (fcmToken) {
+            const updateToken = await User.findOneAndUpdate({ email: email }, { fcmToken: fcmToken }, { new: true });
+        }
         res.json({
             user: {
                 _id: user._id,
                 name: user.name,
                 email: user.email,
                 pic: user.pic,
+                fcmToken: fcmToken,
                 token: generateToken(user._id)
             },
             notification: user.notification
@@ -75,34 +82,6 @@ export const allUsers = async (req, res) => {
 }
 
 export const getNotifications = async (req, res) => {
-    // try {
-    //     const user = await User.findById(req.user._id)
-
-    //     const notifications = user.notification;
-    //     console.log(notifications)
-
-    //     let nots = [];
-
-    //     notifications.map((n) => {
-    //         const findMessage = async () => {
-    //             const message = await Message.findById(n).populate("sender chat");
-
-    //             console.log(message)
-    //         }
-
-    //         findMessage()
-    //     })
-
-
-
-    //     console.log(nots);
-    //     // console.log("notifications : ", user)
-
-    // } catch (err) {
-    //     console.log(err);
-    //     res.status(401);
-    // }
-
     try {
         const user = await User.findById(req.user._id);
 
@@ -118,35 +97,17 @@ export const getNotifications = async (req, res) => {
 }
 
 export const saveNotification = async (req, res) => {
-    // const { messageId, userId } = req.body;
-
-    // try {
-    //     const user = await User.findById(userId);
-    //     const notifications = user.notification;
-    //     notifications.unshift(messageId);
-
-    //     const savedNotification = await User.findByIdAndUpdate(userId, { notification: notifications }, { new: true });
-
-    //     res.json({ success: true });
-    // } catch (err) {
-    //     console.log(err);
-    //     return res.status(400).json("Error Saving Notification");
-    // }
-
     const { message } = req.body;
 
+    console.log("saving notifi : ", message)
     try {
         const user = await User.findById(req.user._id);
         let notifications = user.notification;
 
         const existedMessage = notifications.find(n => n.chat._id === message.chat._id);
 
-        console.log("exists : ", existedMessage);
-
         if (!existedMessage) {
             notifications.unshift(message);
-
-            console.log("saving these notifs : ", notifications)
 
             const savedNotification = await User.findByIdAndUpdate(req.user._id, { notification: notifications }, { new: true });
 
@@ -176,4 +137,20 @@ export const removeNotification = async (req, res) => {
         return res.status(400).json("Error Saving Notification");
     }
 
-} 
+}
+
+export const saveFCMToken = async (req, res) => {
+    try {
+        const { fcmToken } = req.body;
+
+        const user = await User.findByIdAndUpdate(req.user._id, { fcmToken: fcmToken }, { new: true });
+
+        res.status(200).json({
+            fcmToken: user.fcmToken
+        })
+
+    } catch (err) {
+        console.log(err);
+        res.status(400);
+    }
+}

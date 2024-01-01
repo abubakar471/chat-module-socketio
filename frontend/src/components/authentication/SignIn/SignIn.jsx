@@ -1,9 +1,11 @@
 import { Button, FormControl, FormLabel, Input, InputGroup, InputRightElement, VStack, useToast } from "@chakra-ui/react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom";
 import axios from "axios"
+import { messaging } from "../../../config/firebase/firebase";
+import { getToken } from "firebase/messaging";
 
-const SignIn = () => {
+const SignIn = ({ fcmToken, setFcmToken }) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [show, setShow] = useState(false);
@@ -37,7 +39,7 @@ const SignIn = () => {
                     "Content-type": "application/json"
                 }
             }
-            const { data } = await axios.post("/api/user/signin", { email, password }, config);
+            const { data } = await axios.post("/api/user/signin", { email, password, fcmToken }, config);
 
             if (data) {
                 toast({
@@ -65,6 +67,33 @@ const SignIn = () => {
         }
     }
 
+    async function requestPermission() {
+        const permission = await Notification.requestPermission();
+        if (permission === "granted") {
+            if (typeof window !== undefined) {
+                // Generate Token
+                const token = await getToken(messaging, {
+                    vapidKey: "BP-QVsqGtY7QxTcUcFdPKHPKVuzLsXFFiAzb13QTKxhZWNA1OijI-QyaKZIv8lO0syQtun3r_0g7mYjYn0QUaZw",
+                });
+                setFcmToken(token);
+            }
+        } else if (permission === "denied") {
+            console.log("user blocked")
+        }
+    }
+
+    // useEffect(() => {
+    //     // if ('serviceWorker' in navigator) {
+    //     //     navigator.serviceWorker.register('../firebase-messaging-sw.js')
+    //     //         .then(function (registration) {
+    //     //             console.log('Registration successful, scope is:', registration.scope);
+    //     //             // requestPermission();
+    //     //         }).catch(function (err) {
+    //     //             console.log('Service worker registration failed, error:', err);
+    //     //         });
+    //     // }
+
+    // }, []);
 
     return (
         <VStack spacing={"5px"}>

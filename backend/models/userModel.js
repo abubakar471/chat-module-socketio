@@ -19,7 +19,10 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
-    notification: []
+    notification: [],
+    fcmToken: {
+        type: String
+    }
 }, { timestamps: true })
 
 userSchema.methods.matchPassword = async function (enteredPassword) {

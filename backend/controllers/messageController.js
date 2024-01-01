@@ -13,7 +13,7 @@ export const sendMessage = async (req, res) => {
     var newMessage = {
         sender: req.user._id,
         content: content,
-        file : file,
+        file: file,
         chat: chatId
     }
 
@@ -24,7 +24,7 @@ export const sendMessage = async (req, res) => {
         message = await message.populate("chat");
         message = await User.populate(message, {
             path: "chat.users",
-            select: "name pic email"
+            select: "name pic email fcmToken"
         });
 
         await Chat.findByIdAndUpdate(chatId, {

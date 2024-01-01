@@ -3,10 +3,13 @@ import SignIn from "../../components/authentication/SignIn/SignIn"
 import SignUp from "../../components/authentication/SignUp/SignUp"
 import styles from "./Home.styles.css"
 import { Container, Box, Text, Tabs, TabList, Tab, TabPanels, TabPanel } from "@chakra-ui/react"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
+import { messaging } from "../../config/firebase/firebase"
+import { getToken } from "firebase/messaging";
 
-const HomePage = () => {
+const HomePage = ({ fcmToken, setFcmToken }) => {
     const navigate = useNavigate();
+
 
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem("userInfo"));
@@ -16,6 +19,37 @@ const HomePage = () => {
         }
 
     }, [navigate]);
+
+    const registerServiceWorker = async () => {
+        try {
+            const serviceWorkerRegistration = await navigator.serviceWorker.register("firebase-messaging-sw.js");
+
+            await navigator.serviceWorker.ready;
+
+            // registering push 
+            const subscription = await serviceWorkerRegistration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: "BP-QVsqGtY7QxTcUcFdPKHPKVuzLsXFFiAzb13QTKxhZWNA1OijI-QyaKZIv8lO0syQtun3r_0g7mYjYn0QUaZw"
+            })
+        } catch (err) {
+            const serviceWorkerRegistration = await navigator.serviceWorker.register("firebase-messaging-sw.js");
+
+            await navigator.serviceWorker.ready;
+
+            // registering push 
+            const subscription = await serviceWorkerRegistration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: "BP-QVsqGtY7QxTcUcFdPKHPKVuzLsXFFiAzb13QTKxhZWNA1OijI-QyaKZIv8lO0syQtun3r_0g7mYjYn0QUaZw"
+            })
+        }
+    }
+
+    useEffect(() => {
+        console.log("navigator fires in home page")
+        registerServiceWorker();
+    }, [])
+
+
 
     return (
         <div className={styles.home__conatiner}>
@@ -32,10 +66,10 @@ const HomePage = () => {
                         </TabList>
                         <TabPanels>
                             <TabPanel>
-                                <SignIn />
+                                <SignIn fcmToken={fcmToken} setFcmToken={setFcmToken} />
                             </TabPanel>
                             <TabPanel>
-                                <SignUp />
+                                <SignUp fcmToken={fcmToken} setFcmToken={setFcmToken} />
                             </TabPanel>
                         </TabPanels>
                     </Tabs>

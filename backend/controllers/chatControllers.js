@@ -59,7 +59,7 @@ export const fetchChats = async (req, res) => {
             .then(async (results) => {
                 results = await User.populate(results, {
                     path: "latestMessage.sender",
-                    select: "name pic email",
+                    select: "name pic email fcmToken",
                 });
 
                 res.status(200).json(results);
