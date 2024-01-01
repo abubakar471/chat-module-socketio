@@ -40,7 +40,7 @@ messaging.onBackgroundMessage(({ notification }) => {
     const notificationTitle = notification.data.title;
     const notificationOptions = {
         body: notification.data.body,
-        icon: notification.data.image
+        // icon: notification.data.image
     };
 
 

@@ -88,7 +88,7 @@ io.on("connection", (socket) => {
                     notification: {
                         title: "New Message",
                         body: newMessageReceived.content.toString().length > 40 ? newMessageReceived.content.toString().slice(0, 40) + "..." : newMessageReceived.content.toString(),
-                        image: "https://www.freepnglogos.com/uploads/discord-logo-png/discord-will-provide-official-verification-esports-team-4.png"
+                        // image: "https://www.freepnglogos.com/uploads/discord-logo-png/discord-will-provide-official-verification-esports-team-4.png"
                     }
                 }
                 const response = await firebase.messaging().send(message);
