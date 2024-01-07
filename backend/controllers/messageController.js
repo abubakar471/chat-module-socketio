@@ -76,3 +76,30 @@ export const deleteMessage = async (req, res) => {
         res.status(500).json("Internal Server Error")
     }
 }
+
+export const editMessage = async (req, res) => {
+    try {
+        const { messageId, content } = req.body;
+
+        const message = await Message.findById(messageId);
+
+        console.log("message : ", message);
+        console.log("content : ", content);
+
+        if (message && String(message.sender) === String(req.user._id)) {
+            const updatedMessage = await Message.findByIdAndUpdate(messageId, { content: content }, { new: true });
+
+            if (updatedMessage) {
+                return res.status(200).json(updatedMessage);
+            } else {
+                return res.status(400).json("Could Not Update Message")
+            }
+        }
+
+        res.status(400).json("Only Sender Can Update Message");
+    } catch (err) {
+        console.log(err);
+
+        res.status(500).json("Internal Server Error")
+    }
+}

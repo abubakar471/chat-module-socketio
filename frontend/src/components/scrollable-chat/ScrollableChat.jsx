@@ -7,6 +7,7 @@ import { IoDocuments } from "react-icons/io5";
 import { FaAngleDown } from "react-icons/fa6";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import EditMessageModal from "../modals/edit-message-modal/EditMessageModal";
 
 const ScrollableChat = ({ messages, setMessages }) => {
     const [isDeleting, setIsDeleting] = useState(false);
@@ -89,6 +90,7 @@ const ScrollableChat = ({ messages, setMessages }) => {
         }
 
     }
+
     return (
         <ScrollableFeed>
             {
@@ -179,7 +181,11 @@ const ScrollableChat = ({ messages, setMessages }) => {
                                         <FaAngleDown size={16} />
                                     </MenuButton>
                                     <MenuList>
-                                        <MenuItem>Edit</MenuItem>
+                                        <EditMessageModal m={m} messages={messages} setMessages={setMessages}>
+                                            <MenuItem>
+                                                Edit
+                                            </MenuItem>
+                                        </EditMessageModal>
                                         <MenuItem onClick={() => deleteMessage(m)}>Delete</MenuItem>
                                     </MenuList>
                                 </Menu>
