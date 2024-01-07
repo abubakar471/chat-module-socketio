@@ -1,12 +1,19 @@
 import ScrollableFeed from "react-scrollable-feed"
 import { isLastMessage, isSameSender, isSameSenderMargin, isSameUser } from "../../config/chatLogics"
 import { ChatState } from "../../context/ChatProvider"
-import { Avatar, Image, Tooltip } from "@chakra-ui/react";
+import { Avatar, Button, Image, Menu, MenuButton, MenuItem, MenuList, Spinner, Tooltip, useToast } from "@chakra-ui/react";
 import PreviewFileModal from "../modals/preview-file-modal/PreviewFileModal";
 import { IoDocuments } from "react-icons/io5";
+import { FaAngleDown } from "react-icons/fa6";
+import axios from "axios";
+import { useEffect, useState } from "react";
 
-const ScrollableChat = ({ messages }) => {
-    const { user } = ChatState();
+const ScrollableChat = ({ messages, setMessages }) => {
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [currentMessage, setCurrentMessage] = useState(null);
+
+    const { user, chats, setChats } = ChatState();
+    const toast = useToast();
 
     const getExtension = (filename) => {
         const extension = filename.split('.').pop();
@@ -56,11 +63,37 @@ const ScrollableChat = ({ messages }) => {
         }
     }
 
+    const deleteMessage = async (message) => {
+        setCurrentMessage(message);
+
+        try {
+            setIsDeleting(true);
+            const config = {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${user.token}`
+                }
+            }
+
+            const { data } = await axios.post("/api/message/delete", { messageId: message._id }, config);
+
+            if (data.success) {
+                const filteredArr = messages.filter(m => m._id !== message._id);
+
+                setMessages(filteredArr);
+            }
+        } catch (err) {
+            console.log(err);
+        } finally {
+            setIsDeleting(false);
+        }
+
+    }
     return (
         <ScrollableFeed>
             {
                 messages && messages.map((m, i) => (
-                    <div key={m._id} style={{ display: "flex", marginBottom : "10px"}}>
+                    <div key={m._id} style={{ display: "flex", marginBottom: "10px" }}>
                         {(isSameSender(messages, m, i, user._id) ||
                             isLastMessage(messages, i, user._id)) && (
                                 <Tooltip label={m.sender.name} placement="bottom-start" hasArrow>
@@ -74,6 +107,7 @@ const ScrollableChat = ({ messages }) => {
                                     />
                                 </Tooltip>
                             )}
+
                         <div style={{
                             backgroundColor: `${m.sender._id === user._id ? "#BEE3F8" : "#B9F5D0"
                                 }`,
@@ -134,17 +168,28 @@ const ScrollableChat = ({ messages }) => {
                                     </>
                                 )}
                             </div>
-                            <div>
-                                <span >
+                            <div style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: `${m?.file ? "5px 0" : "0"}` }}>
+                                <span style={{ display: "flex", gap: "5px" }}>
+                                    {(isDeleting && currentMessage._id === m._id) && <Spinner color='red.500' />}
                                     {m.content}
                                 </span>
+
+                                <Menu>
+                                    <MenuButton as={Button} bg="transparent" _hover={{ bg: "transparent" }} _active={{ bg: "transparent" }}>
+                                        <FaAngleDown size={16} />
+                                    </MenuButton>
+                                    <MenuList>
+                                        <MenuItem>Edit</MenuItem>
+                                        <MenuItem onClick={() => deleteMessage(m)}>Delete</MenuItem>
+                                    </MenuList>
+                                </Menu>
                             </div>
                         </div>
                     </div>
 
                 ))
             }
-        </ScrollableFeed>
+        </ScrollableFeed >
     )
 }
 

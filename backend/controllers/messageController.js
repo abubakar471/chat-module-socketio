@@ -50,3 +50,29 @@ export const allMessages = async (req, res) => {
         res.status(400);
     }
 }
+
+export const deleteMessage = async (req, res) => {
+    try {
+        const { messageId } = req.body;
+
+        const message = await Message.findById(messageId);
+
+        console.log("message : ", message);
+        console.log("current user : ", req.user);
+        if (message && String(message.sender) === String(req.user._id)) {
+            const deletedMessage = await Message.findByIdAndDelete(messageId);
+
+            if (deletedMessage) {
+                return res.status(200).json({ success: true });
+            } else {
+                return res.status(400).json("Could Not Delete Message")
+            }
+        }
+
+        res.status(400).json("Only Sender Can Delete Message");
+    } catch (err) {
+        console.log(err);
+
+        res.status(500).json("Internal Server Error")
+    }
+}

@@ -8,6 +8,8 @@
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
+    /* nicer line uncomment koro jodi overflow niye kono issue face kore thako taile */
+    overflow-y: hidden; 
 }
 
 ::-webkit-scrollbar {

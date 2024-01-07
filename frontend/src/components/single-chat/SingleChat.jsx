@@ -319,8 +319,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                                 <>
                                     {/* messages  */}
                                     <div className="messages">
-                                        <ScrollableChat messages={messages} />
-                                        <div ref={ref} style={{paddingTop : "50px"}} />
+                                        <ScrollableChat messages={messages} setMessages={setMessages} />
+                                        <div ref={ref} style={{ paddingTop: "50px" }} />
                                     </div>
 
                                 </>

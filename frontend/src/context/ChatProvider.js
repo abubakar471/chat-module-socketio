@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useToast } from "@chakra-ui/react";
 
 const ChatContext = createContext();
 
@@ -10,7 +11,7 @@ const ChatProvixer = ({ children }) => {
     const [chats, setChats] = useState(null);
     const [notification, setNotification] = useState([]);
 
-
+    const toast = useToast();
 
     const navigate = useNavigate();
     axios.defaults.baseURL = process.env.REACT_APP_API_URL;
@@ -29,6 +30,16 @@ const ChatProvixer = ({ children }) => {
                 setChats(null);
                 window.localStorage.removeItem("userInfo");
                 navigate("/");
+            }
+
+            if (res.status === 400) {
+                toast({
+                    title: error.response.data,
+                    status: "warning",
+                    duration: 5000,
+                    isClosable: true,
+                    position: "bottom"
+                })
             }
         }
     )
