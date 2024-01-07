@@ -41,6 +41,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             ref.current?.scrollIntoView({
                 behavior: "smooth",
                 block: "end",
+                inline: "start"
             });
         }
     }, [messages.length]);
@@ -189,18 +190,17 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 .catch(err => {
                     console.log("err : ", err);
                 })
-        } else if (pic.type === "application/pdf" || pic.type === "application/doc" || pic.type === "application/ms-doc" || pic.type === "application/msword" || pic.type === "application/xlsx" || pic.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || pic.type === "application/pptx") {
+        } else if (pic.type === "application/pdf" || pic.type === "application/doc" || pic.type === "application/ms-doc" || pic.type === "application/msword" || pic.type === "application/xlsx" || pic.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || pic.type === "application/vnd.openxmlformats-officedocument.presentationml.presentation" || pic.type === "text/plain" || pic.type === "application/x-zip-compressed") {
             const data = new FormData();
             data.append("file", pic);
             data.append("upload_preset", "chat-app");
             data.append("cloud_name", "dex1j2qai");
-          
+
             fetch("https://api.cloudinary.com/v1_1/dex1j2qai/raw/upload", {
                 method: "post",
                 body: data
             }).then(res => res.json())
                 .then((data) => {
-                    console.log("raw data : ", data)
                     setFile(data.url.toString());
                     setUploading(false);
                 }).catch(err => {
@@ -208,7 +208,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 })
         } else {
             toast({
-                title: "Please select an image",
+                title: "File Format Not Supported",
                 status: "warning",
                 duration: 5000,
                 isClosable: true,
@@ -320,8 +320,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                                     {/* messages  */}
                                     <div className="messages">
                                         <ScrollableChat messages={messages} />
-                                        <div ref={ref} />
+                                        <div ref={ref} style={{paddingTop : "50px"}} />
                                     </div>
+
                                 </>
                             )
                         }

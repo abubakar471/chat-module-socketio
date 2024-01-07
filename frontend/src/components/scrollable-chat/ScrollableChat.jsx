@@ -10,7 +10,7 @@ const ScrollableChat = ({ messages }) => {
 
     const getExtension = (filename) => {
         const extension = filename.split('.').pop();
-        console.log(extension);
+        // console.log(extension);
 
         switch (extension) {
             case 'png':
@@ -20,9 +20,9 @@ const ScrollableChat = ({ messages }) => {
             case 'jpeg':
                 return 'jpg';
             case 'zip':
-                return 'rar';
+                return 'doc';
             case 'rar':
-                return 'rar';
+                return 'doc';
             case 'mp4':
                 return 'mp4';
             case 'flv':
@@ -49,6 +49,8 @@ const ScrollableChat = ({ messages }) => {
                 return 'doc';
             case 'xlsx':
                 return 'doc';
+            case 'txt':
+                return 'doc';
             default:
                 return extension;
         }
@@ -58,7 +60,7 @@ const ScrollableChat = ({ messages }) => {
         <ScrollableFeed>
             {
                 messages && messages.map((m, i) => (
-                    <div key={m._id} style={{ display: "flex" }}>
+                    <div key={m._id} style={{ display: "flex", marginBottom : "10px"}}>
                         {(isSameSender(messages, m, i, user._id) ||
                             isLastMessage(messages, i, user._id)) && (
                                 <Tooltip label={m.sender.name} placement="bottom-start" hasArrow>

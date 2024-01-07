@@ -26,7 +26,7 @@ const ChatPage = () => {
                         const token = await getToken(messaging, {
                             vapidKey: "BP-QVsqGtY7QxTcUcFdPKHPKVuzLsXFFiAzb13QTKxhZWNA1OijI-QyaKZIv8lO0syQtun3r_0g7mYjYn0QUaZw",
                         });
-                        console.log("Token Gen in chat page", token);
+                        // console.log("Token Gen in chat page", token);
                         setFcmToken(token);
 
                         if (token) {
