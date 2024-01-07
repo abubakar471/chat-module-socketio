@@ -3,9 +3,56 @@ import { isLastMessage, isSameSender, isSameSenderMargin, isSameUser } from "../
 import { ChatState } from "../../context/ChatProvider"
 import { Avatar, Image, Tooltip } from "@chakra-ui/react";
 import PreviewFileModal from "../modals/preview-file-modal/PreviewFileModal";
+import { IoDocuments } from "react-icons/io5";
 
 const ScrollableChat = ({ messages }) => {
     const { user } = ChatState();
+
+    const getExtension = (filename) => {
+        const extension = filename.split('.').pop();
+        console.log(extension);
+
+        switch (extension) {
+            case 'png':
+                return 'jpg';
+            case 'gif':
+                return 'jpg';
+            case 'jpeg':
+                return 'jpg';
+            case 'zip':
+                return 'rar';
+            case 'rar':
+                return 'rar';
+            case 'mp4':
+                return 'mp4';
+            case 'flv':
+                return 'mp4';
+            case 'wmv':
+                return 'mp4';
+            case 'mkv':
+                return 'mp4';
+            case 'avi':
+                return 'mp4';
+            case 'webm':
+                return 'mp4';
+            case 'mp3':
+                return 'mp3';
+            case 'wav':
+                return 'mp3';
+            case 'mpeg':
+                return 'mp3';
+            case 'pdf':
+                return 'doc';
+            case 'pptx':
+                return 'doc';
+            case 'docx':
+                return 'doc';
+            case 'xlsx':
+                return 'doc';
+            default:
+                return extension;
+        }
+    }
 
     return (
         <ScrollableFeed>
@@ -36,9 +83,53 @@ const ScrollableChat = ({ messages }) => {
                         }}>
                             <div style={{ cursor: "pointer" }}>
                                 {m.file && (
-                                    <PreviewFileModal file={m.file}>
-                                        <Image src={m.file} alt={m.file} width={150} height={150} className="w-[150px] h=[150px] object-cover rounded-md my-2" />
-                                    </PreviewFileModal>
+                                    <>
+                                        {getExtension(m.file) === "doc" && (
+                                            <PreviewFileModal file={m.file} extension={getExtension(m.file)}>
+                                                <IoDocuments size={200} className="!text-[24px]" />
+                                            </PreviewFileModal>
+                                        )}
+
+                                        {getExtension(m.file) === "jpg" && (
+                                            <PreviewFileModal file={m.file} extension={getExtension(m.file)}>
+                                                <Image src={m.file} alt={m.file} width={250} height={180} className="w-[350px] h=[150px] object-cover rounded-md my-2" />
+
+                                            </PreviewFileModal>
+                                        )}
+
+                                        {
+                                            getExtension(m.file) === "mp4" && (
+                                                <>
+                                                    <video width="320" height="240" controls>
+                                                        <source src={m.file} type="video/mp4" />
+                                                        <source src={m.file} type="video/ogg" />
+                                                        <source src={m.file} type="video/webm" />
+                                                        <source src={m.file} type="video/flv" />
+                                                        <source src={m.file} type="video/mkv" />
+                                                        <source src={m.file} type="video/avi" />
+                                                        <source src={m.file} type="video/wmv" />
+                                                        Your browser does not support the video tag.
+                                                    </video>
+                                                </>
+                                            )
+
+                                        }
+
+                                        {
+                                            getExtension(m.file) === "mp3" && (
+                                                <>
+                                                    <audio controls>
+                                                        <source src={m.file} type="audio/ogg" />
+                                                        <source src={m.file} type="audio/mpeg" />
+                                                        <source src={m.file} type="audio/wav" />
+                                                        <source src={m.file} type="audio/mp3" />
+                                                        Your browser does not support the audio tag.
+                                                    </audio>
+                                                </>
+                                            )
+
+                                        }
+                                    </>
                                 )}
                             </div>
                             <div>

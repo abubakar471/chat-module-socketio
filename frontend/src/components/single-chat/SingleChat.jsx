@@ -14,12 +14,14 @@ import animationData from "../../animations/typing.json";
 import { GrAttachment } from "react-icons/gr";
 import { IoCheckmarkSharp } from "react-icons/io5";
 import { IoCheckmarkDone } from "react-icons/io5";
+import { TiAttachmentOutline } from "react-icons/ti";
 // import addNotification from "react-push-notification";
 import serviceKey from "../../servcie_key.json"
 
 // const ENDPOINT = "http://localhost:8000"
 
 const ENDPOINT = process.env.REACT_APP_API_URL;
+
 var socket, selectedChatCompare;
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
@@ -167,8 +169,42 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             }).then(res => res.json())
                 .then((data) => {
                     setFile(data.url.toString());
-                    console.log('msg image : ', data.url.toString());
                     setUploading(false);
+                })
+        } else if (pic.type === "video/mp4" || pic.type === "video/mkv" || pic.type === "video/avi" || pic.type === "video/wmv" || pic.type === "video/flv" || pic.type === "video/webm" || pic.type === "audio/mp3" || pic.type === "audio/wav" || pic.type === "audio/mpeg") {
+            const data = new FormData();
+            data.append("file", pic);
+            data.append("upload_preset", "chat-app");
+            data.append("cloud_name", "dex1j2qai");
+
+            fetch("https://api.cloudinary.com/v1_1/dex1j2qai/video/upload", {
+                method: "post",
+                body: data
+            })
+                .then(res => res.json())
+                .then((data) => {
+                    setFile(data.url.toString());
+                    setUploading(false);
+                })
+                .catch(err => {
+                    console.log("err : ", err);
+                })
+        } else if (pic.type === "application/pdf" || pic.type === "application/doc" || pic.type === "application/ms-doc" || pic.type === "application/msword" || pic.type === "application/xlsx" || pic.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || pic.type === "application/pptx") {
+            const data = new FormData();
+            data.append("file", pic);
+            data.append("upload_preset", "chat-app");
+            data.append("cloud_name", "dex1j2qai");
+          
+            fetch("https://api.cloudinary.com/v1_1/dex1j2qai/raw/upload", {
+                method: "post",
+                body: data
+            }).then(res => res.json())
+                .then((data) => {
+                    console.log("raw data : ", data)
+                    setFile(data.url.toString());
+                    setUploading(false);
+                }).catch(err => {
+                    console.log("error in documents upload : ", err)
                 })
         } else {
             toast({
@@ -291,8 +327,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                         }
 
                         {file && (
-                            <div className="w-full flex items-center gap-x-2">
-                                <Image src={file} alt="uploaded-file" width={20} height={20} className="w-[60px] h-[60px] object-cover p-2 rounded-md" />
+                            <div className="w-full !flex items-center gap-x-2">
+                                <TiAttachmentOutline className="text-[20px]" />
                                 <p>
                                     {file.length > 24 ? file.slice(0, 24) + "..." : file}
                                 </p>
