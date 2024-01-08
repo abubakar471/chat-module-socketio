@@ -121,14 +121,20 @@ export const saveNotification = async (req, res) => {
 }
 
 export const removeNotification = async (req, res) => {
-    const { messageId } = req.body;
+    const { chatId } = req.body;
 
     try {
+        const chat = await Chat.findById(chatId);
         const user = await User.findById(req.user._id);
-        const notifications = user.notification;
-        let removedNotifications = notifications.filter(n => n._id !== messageId);
 
-        console.log("removed notifications tray : ", removedNotifications);
+        const notifications = user.notification;
+        console.log("notificaons : ", notifications);
+        let removedNotifications = notifications.filter(n => String(n.chat._id) !== String(chat._id));
+
+
+
+        console.log("removed notificaitions : ", removedNotifications)
+
         const savedNotification = await User.findByIdAndUpdate(req.user._id, { notification: removedNotifications }, { new: true });
 
         res.json({ success: true });

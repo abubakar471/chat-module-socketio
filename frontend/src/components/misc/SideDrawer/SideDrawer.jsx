@@ -133,7 +133,7 @@ const SideDrawer = () => {
         }
 
         const { data } = await axios.post("/api/user/remove-notification", {
-            messageId: notif._id,
+            chatId: notif.chat._id,
         }, config);
     }
 

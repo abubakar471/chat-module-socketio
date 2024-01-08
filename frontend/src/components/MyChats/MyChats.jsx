@@ -62,6 +62,19 @@ const MyChats = ({ fetchAgain }) => {
         }
     }
 
+    const removeNotification = async (notif) => {
+        const config = {
+            headers: {
+                "Content-type": "application/json",
+                authorization: `Bearer ${user.token}`
+            }
+        }
+
+        const { data } = await axios.post("/api/user/remove-notification", {
+            chatId: notif._id,
+        }, config);
+    }
+
     useEffect(() => {
         setLoggedInUser(JSON.parse(localStorage.getItem("userInfo")));
         fetchChats();
@@ -128,6 +141,7 @@ const MyChats = ({ fetchAgain }) => {
                                             style={{ display: "flex", alignItems: "center", gap: "5px", flex: "2", color: selectedChat === chat ? "white" : "black", padding: "5px 0" }}
                                             onClick={() => {
                                                 setNotification(notification.filter(n => n.chat._id !== chat._id));
+                                                removeNotification(chat);
                                                 setSelectedChat(chat);
                                             }}>
                                             {isDeleting && <Spinner colorScheme="red.500" />}
