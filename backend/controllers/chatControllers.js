@@ -1,4 +1,5 @@
 import Chat from "../models/chatModel.js";
+import Message from "../models/messageModel.js";
 import User from "../models/userModel.js";
 
 export const accessChat = async (req, res) => {
@@ -172,5 +173,39 @@ export const removeFromGroup = async (req, res) => {
         console.log("Chat Not Found");
     } else {
         res.json(removed);
+    }
+}
+
+export const deleteChat = async (req, res) => {
+    try {
+        const { chatId } = req.body;
+
+        const chat = await Chat.findById(chatId);
+
+        console.log("chat : ", chat);
+
+        if (chat) {
+            if (chat.users.length === 1) {
+                const deletedChat = await Chat.findByIdAndDelete(chatId);
+                const messagesOfThatChat = await Message.deleteMany({ chat: chatId });
+            } else {
+                const deletedChat = await Chat.findByIdAndUpdate(chatId,
+                    { $pull: { users: req.user._id } },
+                    { new: true }
+                );
+            }
+
+            if (deleteChat) {
+                return res.status(200).json({ success: true });
+            } else {
+                return res.status(400).json("Could Not Delete Chat")
+            }
+        }
+
+        res.status(400).json("Only Users In This Room Can Delete This Chat");
+    } catch (err) {
+        console.log(err);
+
+        res.status(500).json("Internal Server Error")
     }
 }

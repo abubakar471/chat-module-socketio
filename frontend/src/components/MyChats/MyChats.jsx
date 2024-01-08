@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
 import { ChatState } from "../../context/ChatProvider"
-import { Box, Button, Stack, useToast } from "@chakra-ui/react";
+import { Box, Button, Menu, MenuButton, MenuItem, MenuList, Spinner, Stack, useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { AddIcon } from "@chakra-ui/icons";
 import ChatLoading from "../loading/ChatLoding";
 import { getSender } from "../../config/chatLogics";
 import GroupChatModal from "../modals/group-chat-modal/GroupChatModal";
+import { BiDotsHorizontalRounded } from "react-icons/bi";
+import { MdOutlineDeleteOutline } from "react-icons/md";
 
 const MyChats = ({ fetchAgain }) => {
     const [loggedInUser, setLoggedInUser] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
     const { user, chats, setChats, selectedChat, setSelectedChat, notification, setNotification } = ChatState();
     const toast = useToast();
 
@@ -33,6 +36,31 @@ const MyChats = ({ fetchAgain }) => {
             });
         }
     };
+
+    const deleteChat = async (chat) => {
+        try {
+            setIsDeleting(true);
+
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${user.token}`,
+                },
+            };
+
+            const { data } = await axios.post("/api/chat/delete-chat", { chatId: chat._id }, config);
+            console.log(data);
+
+            if (data.success) {
+                const filteredArr = chats.filter(c => c._id !== chat._id);
+
+                setChats(filteredArr);
+            }
+        } catch (err) {
+            console.log(err);
+        } finally {
+            setIsDeleting(false);
+        }
+    }
 
     useEffect(() => {
         setLoggedInUser(JSON.parse(localStorage.getItem("userInfo")));
@@ -88,24 +116,43 @@ const MyChats = ({ fetchAgain }) => {
                                 chats.map((chat) => (
                                     <Box
                                         key={chat._id}
-                                        onClick={() => {
-                                            setNotification(notification.filter(n => n.chat._id !== chat._id));
-                                            setSelectedChat(chat);
-                                        }}
                                         cursor="pointer"
                                         borderRadius="lg"
                                         px={3}
-                                        py={2}
-                                        color={selectedChat === chat ? "white" : "black"}
                                         bg={selectedChat === chat ? "#38B2AC" : "#E8E8E8"}
+                                        display="flex"
+                                        alignItems="center"
+                                        justifyContent="space-between"
                                     >
-                                        {
-                                            !chat.isGroupChat ? (
-                                                getSender(loggedInUser, chat.users)
-                                            ) : (
-                                                chat.chatName
-                                            )
-                                        }
+                                        <p
+                                            style={{ display: "flex", alignItems: "center", gap: "5px", flex: "2", color: selectedChat === chat ? "white" : "black", padding: "5px 0" }}
+                                            onClick={() => {
+                                                setNotification(notification.filter(n => n.chat._id !== chat._id));
+                                                setSelectedChat(chat);
+                                            }}>
+                                            {isDeleting && <Spinner colorScheme="red.500" />}
+                                            {
+                                                !chat.isGroupChat ? (
+                                                    getSender(loggedInUser, chat.users)
+                                                ) : (
+                                                    chat.chatName
+                                                )
+                                            }
+                                        </p>
+
+
+
+                                        {/* <Menu>
+                                            <MenuButton as={Button} bg="transparent" color="black" _hover={{ bg: "transparent" }} _active={{ bg: "transparent" }}>
+                                                <BiDotsHorizontalRounded size={16} />
+                                            </MenuButton>
+                                            <MenuList>
+                                                <MenuItem display="flex" alignItems="center" gap={2} onClick={() => deleteChat(chat)}>
+                                                    <MdOutlineDeleteOutline size={16} />
+                                                    Delete
+                                                </MenuItem>
+                                            </MenuList>
+                                        </Menu> */}
                                     </Box>
                                 ))
                             }

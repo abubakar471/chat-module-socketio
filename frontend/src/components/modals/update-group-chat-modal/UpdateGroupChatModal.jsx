@@ -5,6 +5,8 @@ import { useState } from "react";
 import UserBadgeItem from "../../user/UserBadgeItem";
 import axios from "axios";
 import UserListItem from "../../user/UserListItem";
+import { MdAdminPanelSettings } from "react-icons/md";
+
 
 const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, fetchMessages }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -129,7 +131,7 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, fetchMessages }) => {
 
             return;
         }
-        
+
         if (selectedChat.groupAdmin._id !== user._id) {
             toast({
                 title: "Only admins can add someone",
@@ -185,6 +187,11 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, fetchMessages }) => {
                     </ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
+                        <Box display="flex" alignItems="center" gap={2} shadow="sm" marginBottom={4}>
+                            <MdAdminPanelSettings />
+                            <p>Admin : </p>
+                            <p style={{ width: "fit-content" }}>{selectedChat.groupAdmin.name}</p>
+                        </Box>
                         <Box display="flex" flexWrap="wrap" width="100%" pb={3}>
                             {
                                 selectedChat.users.map(u => (
@@ -239,7 +246,7 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, fetchMessages }) => {
                         <Button colorScheme="red" onClick={() => handleRemove(user)}>Leave</Button>
                     </ModalFooter>
                 </ModalContent>
-            </Modal>
+            </Modal >
         </>
     )
 }
