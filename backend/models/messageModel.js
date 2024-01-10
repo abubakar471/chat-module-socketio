@@ -14,7 +14,16 @@ const messageSchema = new mongoose.Schema({
     chat: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Chat"
-    }
+    },
+    reactions: [
+        {
+            userId: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User"
+            },
+            react: String
+        }
+    ]
 }, { timestamps: true })
 
 const Message = mongoose.model("Message", messageSchema);

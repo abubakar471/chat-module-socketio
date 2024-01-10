@@ -99,7 +99,69 @@ export const editMessage = async (req, res) => {
         res.status(400).json("Only Sender Can Update Message");
     } catch (err) {
         console.log(err);
+        res.status(500).json("Internal Server Error")
+    }
+}
 
+export const reactToMessage = async (req, res) => {
+    try {
+        const { messageId, react } = req.body;
+
+        const message = await Message.findById(messageId);
+        const reactions = message.reactions;
+
+        const isExist = reactions.filter(r => r.userId !== req.user._id);
+
+        let updatedReaction;
+
+        if (isExist.length > 0) {
+            // remove that user's reaction
+            const currentReaction = isExist[0];
+
+            if (currentReaction.react !== react) {
+                const removeCurrentReaction = await Message.findByIdAndUpdate(messageId, {
+                    $pull: {
+                        reactions: {
+                            userId: req.user._id
+                        }
+                    },
+                }, { new: true });
+
+                updatedReaction = await Message.findByIdAndUpdate(messageId, {
+                    $addToSet: {
+                        reactions: {
+                            userId: req.user._id,
+                            react: react
+                        }
+                    },
+                }, { new: true });
+                console.log("updated pre-exist react : ", updatedReaction);
+                return res.status(200).json(updatedReaction)
+            } else {
+                updatedReaction = await Message.findByIdAndUpdate(messageId, {
+                    $pull: {
+                        reactions: {
+                            userId: req.user._id
+                        }
+                    },
+                }, { new: true });
+                console.log("removed react : ", updatedReaction);
+                return res.status(200).json(updatedReaction)
+            }
+        }
+
+        updatedReaction = await Message.findByIdAndUpdate(messageId, {
+            $addToSet: {
+                reactions: {
+                    userId: req.user._id,
+                    react: react
+                }
+            },
+        }, { new: true });
+        console.log("added react : ", updatedReaction);
+        return res.status(200).json(updatedReaction)
+    } catch (err) {
+        console.log(err);
         res.status(500).json("Internal Server Error")
     }
 }
