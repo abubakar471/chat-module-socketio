@@ -3,7 +3,7 @@ import User from "../models/userModel.js";
 import Chat from "../models/chatModel.js";
 
 export const sendMessage = async (req, res) => {
-    const { content, chatId, file } = req.body;
+    const { content, chatId, file, reply } = req.body;
 
     if (!content || !chatId) {
         console.log("Invalid data passed into request");
@@ -14,6 +14,7 @@ export const sendMessage = async (req, res) => {
         sender: req.user._id,
         content: content,
         file: file,
+        reply: reply,
         chat: chatId
     }
 
@@ -22,6 +23,12 @@ export const sendMessage = async (req, res) => {
 
         message = await message.populate("sender", "name pic");
         message = await message.populate("chat");
+        message = await message.populate([{
+            path: "reply", populate: {
+                path: "sender",
+                model: "User"
+            }
+        }]);
         message = await User.populate(message, {
             path: "chat.users",
             select: "name pic email fcmToken"
@@ -42,7 +49,12 @@ export const allMessages = async (req, res) => {
     const chatId = req.params.chatId;
 
     try {
-        const messages = await Message.find({ chat: chatId }).populate("sender", "name pic email").populate("chat");
+        const messages = await Message.find({ chat: chatId }).populate("sender", "name pic email").populate("chat").populate([{
+            path: "reply", populate: {
+                path: "sender",
+                model: "User"
+            }
+        }]);
 
         res.json(messages);
     } catch (err) {

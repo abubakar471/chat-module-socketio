@@ -15,13 +15,13 @@ import { FaFaceAngry } from "react-icons/fa6";
 import { FaLaughSquint } from "react-icons/fa";
 import MessageCard from "../message-card/MessageCard";
 
-const ScrollableChat = ({ messages, setMessages }) => {
+const ScrollableChat = ({ messages, setMessages, reply, setReply }) => {
 
     return (
         <ScrollableFeed>
             {
                 messages && messages.map((m, i) => (
-                    <MessageCard m={m} key={m._id} i={i} messages={messages} setMessages={setMessages} />
+                    <MessageCard m={m} key={m._id} i={i} messages={messages} setMessages={setMessages} reply={reply} setReply={setReply} />
                 ))
             }
         </ScrollableFeed >

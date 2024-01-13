@@ -23,7 +23,11 @@ const messageSchema = new mongoose.Schema({
             },
             react: String
         }
-    ]
+    ],
+    reply: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Message"
+    }
 }, { timestamps: true })
 
 const Message = mongoose.model("Message", messageSchema);

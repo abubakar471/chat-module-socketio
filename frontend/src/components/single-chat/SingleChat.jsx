@@ -15,6 +15,7 @@ import { GrAttachment } from "react-icons/gr";
 import { IoCheckmarkSharp } from "react-icons/io5";
 import { IoCheckmarkDone } from "react-icons/io5";
 import { TiAttachmentOutline } from "react-icons/ti";
+import { MdReply } from "react-icons/md";
 // import addNotification from "react-push-notification";
 import serviceKey from "../../servcie_key.json"
 
@@ -33,6 +34,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     const [isTyping, setIsTyping] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [file, setFile] = useState("");
+    const [reply, setReply] = useState(null);
 
     const ref = useRef(null);
 
@@ -97,14 +99,20 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                     }
                 }
 
-                setNewMessage("");
-                setFile("");
+
 
                 const { data } = await axios.post("/api/message", {
                     content: newMessage,
                     file: file,
+                    reply: reply?._id,
                     chatId: selectedChat._id
                 }, config);
+
+                if (data) {
+                    setNewMessage("");
+                    setFile("");
+                    setReply(null);
+                }
 
                 socket.emit("new message", data);
                 setMessages([...messages, data]);
@@ -319,13 +327,33 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                                 <>
                                     {/* messages  */}
                                     <div className="messages">
-                                        <ScrollableChat messages={messages} setMessages={setMessages} />
+                                        <ScrollableChat messages={messages} setMessages={setMessages} reply={reply} setReply={setReply} />
                                         <div ref={ref} style={{ paddingTop: "50px" }} />
                                     </div>
 
                                 </>
                             )
                         }
+
+                        {reply && (
+                            <div style={{ background: "#dddddd", padding: "10px", borderRadius: "15px" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                    <MdReply size={20} className="text-[20px]" />
+                                    <div style={{ display: "flex", flexDirection: "column" }}>
+                                        <div style={{ fontWeight: "600" }}>
+                                            {reply.sender.name > 24 ? reply.sender.name.slice(0, 24) + "..." : reply.sender.name}
+                                        </div>
+
+                                        <div style={{ color: "GrayText", fontSize: "14px" }}>
+                                            {
+                                                reply.content
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        )}
 
                         {file && (
                             <div className="w-full !flex items-center gap-x-2">

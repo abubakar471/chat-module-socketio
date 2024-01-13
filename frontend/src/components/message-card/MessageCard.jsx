@@ -11,8 +11,11 @@ import { FaFaceAngry, FaRegFaceSadCry } from "react-icons/fa6";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { AiFillLike } from "react-icons/ai";
+import { MdReply } from "react-icons/md";
+import { FiEdit3 } from "react-icons/fi";
+import { RiDeleteBin5Line } from "react-icons/ri";
 
-const MessageCard = ({ messages, setMessages, m, i }) => {
+const MessageCard = ({ messages, setMessages, m, i, reply, setReply }) => {
     const [isDeleting, setIsDeleting] = useState(false);
     const [currentMessage, setCurrentMessage] = useState(null);
     const [currentReact, setCurrentReact] = useState(null);
@@ -119,11 +122,15 @@ const MessageCard = ({ messages, setMessages, m, i }) => {
         }
     }
 
+    const handleReply = async (message) => {
+        setReply(message);
+        console.log(message)
+    }
+
     useEffect(() => {
         const filteredArr = m.reactions.filter(r => r.userId === user._id);
 
         if (filteredArr.length > 0) {
-            console.log("filterd array : ", filteredArr)
             setCurrentReact(filteredArr[0].react);
         }
     }, [])
@@ -206,6 +213,30 @@ const MessageCard = ({ messages, setMessages, m, i }) => {
                     )}
                 </div>
 
+                <div style={{ padding: "5px 0" }}>
+                    {
+                        m?.reply && (
+                            <div style={{ minWidth: "120px", background: "#95b2c1", padding: "10px", borderRadius: "15px", paddingRight: "10px" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                    <MdReply size={20} className="text-[20px]" />
+                                    <div style={{ display: "flex", flexDirection: "column" }}>
+                                        <div style={{ fontWeight: "600" }}>
+                                            {m?.reply?.sender?.name > 24 ? m?.reply?.sender?.name.slice(0, 24) + "..." : m?.reply?.sender?.name}
+                                        </div>
+
+                                        <div style={{ color: "#021926", fontSize: "14px" }}>
+                                            {
+                                                m?.reply?.content
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        )
+                    }
+                </div>
+
                 <div style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: `${m?.file ? "5px 0" : "0"}` }}>
                     <span style={{ display: "flex", gap: "5px" }}>
                         {(isDeleting && currentMessage._id === m._id) && <Spinner color='red.500' />}
@@ -219,29 +250,59 @@ const MessageCard = ({ messages, setMessages, m, i }) => {
                                 <FaAngleDown size={16} />
                             )}
 
-                            {currentReact === "like" && (<AiFillLike size={14} color="blue" />)}
+                            {currentReact === "like" && (<Image
+                                src="/like.png"
+                                width={8}
+                                height={8}
+                                alt="like"
+                            />)}
 
-                            {currentReact === "laugh" && (<FaLaughSquint size={14} color="orange" />)}
+                            {currentReact === "laugh" && (<Image
+                                src="/laugh.png"
+                                width={8}
+                                height={8}
+                                alt="laugh"
+                            />)}
 
-                            {currentReact === "sad" && (<FaRegFaceSadCry size={14} color="orange" />)}
+                            {currentReact === "sad" && (<Image
+                                src="/sad.png"
+                                width={8}
+                                height={8}
+                                alt="sad"
+                            />)}
 
-                            {currentReact === "angry" && (<FaFaceAngry size={14} color="red" />)}
+                            {currentReact === "angry" && (<Image
+                                src="/angry.png"
+                                width={8}
+                                height={8}
+                                alt="like"
+                                onClick={() => handleReact(m, "angry")}
+                            />)}
                         </MenuButton>
                         <MenuList position="relative">
                             <EditMessageModal m={m} messages={messages} setMessages={setMessages}>
-                                <MenuItem>
+                                <MenuItem display="flex" alignItems="center" gap={2}>
+                                    <FiEdit3 />
                                     Edit
                                 </MenuItem>
                             </EditMessageModal>
-                            <MenuItem onClick={() => deleteMessage(m)}>Delete</MenuItem>
+                            <MenuItem display="flex" alignItems="center" gap={2} onClick={() => deleteMessage(m)}>
+                                <RiDeleteBin5Line />
+                                Delete
+                            </MenuItem>
+                            <MenuItem display="flex" alignItems="center" gap={2} onClick={() => handleReply(m)}>
+                                <MdReply />
+                                Reply
+
+                            </MenuItem>
                             <MenuItem>
                                 <div class="itemsContainer">
-                                    <div style={{ display: "flex", alignItems: "center", gap: "5px 3px" }} className="image">
+                                    <div style={{ display: "flex", alignItems: "center", gap: "5px 8px" }} className="image">
                                         <GoSmiley />
                                         React
                                     </div>
                                     <div className="reaction-buttons">
-                                        <AiOutlineLike
+                                        {/* <AiOutlineLike
                                             size={24}
                                             style={{ color: "teal", fontSize: "14px" }}
                                             onClick={() => handleReact(m, "like")}
@@ -259,6 +320,38 @@ const MessageCard = ({ messages, setMessages, m, i }) => {
                                         <FaFaceAngry
                                             size={24}
                                             style={{ color: "red", fontSize: "14px" }}
+                                            onClick={() => handleReact(m, "angry")}
+                                        /> */}
+
+                                        <Image
+                                            src="/like.png"
+                                            width={8}
+                                            height={8}
+                                            alt="like"
+                                            onClick={() => handleReact(m, "like")}
+                                        />
+
+                                        <Image
+                                            src="/laugh.png"
+                                            width={8}
+                                            height={8}
+                                            alt="like"
+                                            onClick={() => handleReact(m, "laugh")}
+                                        />
+
+                                        <Image
+                                            src="/sad.png"
+                                            width={8}
+                                            height={8}
+                                            alt="like"
+                                            onClick={() => handleReact(m, "sad")}
+                                        />
+
+                                        <Image
+                                            src="/angry.png"
+                                            width={8}
+                                            height={8}
+                                            alt="like"
                                             onClick={() => handleReact(m, "angry")}
                                         />
                                     </div>
