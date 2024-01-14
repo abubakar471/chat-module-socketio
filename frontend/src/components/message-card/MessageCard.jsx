@@ -1,4 +1,4 @@
-import { Avatar, Button, Image, Menu, MenuButton, MenuItem, MenuList, Spinner, Tooltip, useToast } from "@chakra-ui/react"
+import { Avatar, Button, Image, Menu, MenuButton, MenuItem, MenuList, Spinner, Tooltip, filter, useToast } from "@chakra-ui/react"
 import { isLastMessage, isSameSender, isSameSenderMargin, isSameUser } from "../../config/chatLogics"
 import { ChatState } from "../../context/ChatProvider"
 import PreviewFileModal from "../modals/preview-file-modal/PreviewFileModal";
@@ -19,6 +19,7 @@ const MessageCard = ({ messages, setMessages, m, i, reply, setReply }) => {
     const [isDeleting, setIsDeleting] = useState(false);
     const [currentMessage, setCurrentMessage] = useState(null);
     const [currentReact, setCurrentReact] = useState(null);
+    const [reactions, setReactions] = useState([]);
 
     const { user, chats, setChats } = ChatState();
     const toast = useToast();
@@ -113,9 +114,33 @@ const MessageCard = ({ messages, setMessages, m, i, reply, setReply }) => {
             const { data } = await axios.post("/api/message/react", { messageId: message._id, react }, config);
 
             if (data.reactions.length > 0) {
-                setCurrentReact(react);
+                // let filteredArrWithOutUser = reactions.filter(r => r.userId !== user._id);
+                // let filteredArrWithOutUser = data.reactions.map(r => {
+                //     for (let i = 0; i <= data.reactions.length; i++) {
+                //         console.log(reactions)
+                //         if (reactions[i]?.userId !== user?._id) {
+                //             return r;
+                //         }
+                //     }
+                // });
+                let updatedArr = data.reactions;
+
+                function updateCurrentReactions(array, userId, react) {
+                    for (let i = 0; i < array.length; i++) {
+                        if (array[i].userId === userId) {
+                            array[i].react = react;
+                            // Assuming there's only one person with the given name
+                            break;
+                        }
+                    }
+                }
+
+                for(let i= 0; i < data.reactions.length; i++){
+                    updateCurrentReactions(updatedArr, data.reactions[i]?.userId, data.reactions[i]?.react)
+                }
+                setReactions(updatedArr);
             } else {
-                setCurrentReact(null);
+                setReactions(data.reactions)
             }
         } catch (err) {
             console.log(err);
@@ -127,13 +152,21 @@ const MessageCard = ({ messages, setMessages, m, i, reply, setReply }) => {
         console.log(message)
     }
 
-    useEffect(() => {
-        const filteredArr = m.reactions.filter(r => r.userId === user._id);
+    // useEffect(() => {
+    //     const filteredArr = m.reactions.filter(r => r.userId === user._id);
 
-        if (filteredArr.length > 0) {
-            setCurrentReact(filteredArr[0].react);
-        }
+    //     if (filteredArr.length > 0) {
+    //         setCurrentReact(filteredArr[0].react);
+    //     }
+    // }, [])
+
+    useEffect(() => {
+        const filteredArr = m.reactions.slice(0, 3);
+
+        console.log(filteredArr);
+        setReactions(filteredArr);
     }, [])
+
 
     return (
         <div style={{ display: "flex", marginBottom: "10px" }}>
@@ -213,7 +246,7 @@ const MessageCard = ({ messages, setMessages, m, i, reply, setReply }) => {
                     )}
                 </div>
 
-                <div style={{ padding: "5px 0" }}>
+                <div style={{ padding: `${m?.reply && "5px 0"}` }}>
                     {
                         m?.reply && (
                             <div style={{ minWidth: "120px", background: "#95b2c1", padding: "10px", borderRadius: "15px", paddingRight: "10px" }}>
@@ -246,11 +279,13 @@ const MessageCard = ({ messages, setMessages, m, i, reply, setReply }) => {
 
                     <Menu>
                         <MenuButton size="sm" paddingRight={0} as={Button} bg="transparent" _hover={{ bg: "transparent" }} _active={{ bg: "transparent" }}>
-                            {!currentReact && (
+                            <FaAngleDown size={16} />
+                            {/* previous */}
+                            {/* {!currentReact && (
                                 <FaAngleDown size={16} />
-                            )}
+                            )} */}
 
-                            {currentReact === "like" && (<Image
+                            {/* {currentReact === "like" && (<Image
                                 src="/like.png"
                                 width={8}
                                 height={8}
@@ -277,7 +312,7 @@ const MessageCard = ({ messages, setMessages, m, i, reply, setReply }) => {
                                 height={8}
                                 alt="like"
                                 onClick={() => handleReact(m, "angry")}
-                            />)}
+                            />)} */}
                         </MenuButton>
                         <MenuList position="relative">
                             <EditMessageModal m={m} messages={messages} setMessages={setMessages}>
@@ -364,7 +399,58 @@ const MessageCard = ({ messages, setMessages, m, i, reply, setReply }) => {
 
                 </div>
 
+                {
+                    reactions.length > 0 && (
+                        <div style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "end" }}>
+                            {
+                                reactions.map(r => {
+                                    if (r?.react === "like") {
+                                        console.log("like");
+                                        return <Image
+                                            src="/like.png"
+                                            width={4}
+                                            height={4}
+                                            alt="like"
+                                        />
+                                    }
+
+                                    if (r?.react === "sad") {
+                                        console.log("sad");
+                                        return <Image
+                                            src="/sad.png"
+                                            width={4}
+                                            height={4}
+                                            alt="sad"
+                                        />
+                                    }
+
+                                    if (r?.react === "laugh") {
+                                        console.log("laugh");
+                                        return <Image
+                                            src="/laugh.png"
+                                            width={4}
+                                            height={4}
+                                            alt="laugh"
+                                        />
+                                    }
+
+                                    if (r?.react === "angry") {
+                                        console.log("angry");
+                                        return <Image
+                                            src="/angry.png"
+                                            width={4}
+                                            height={4}
+                                            alt="angry"
+                                        />
+                                    }
+                                })
+                            }
+                        </div>
+                    )
+                }
             </div>
+
+
         </div>
     )
 }
