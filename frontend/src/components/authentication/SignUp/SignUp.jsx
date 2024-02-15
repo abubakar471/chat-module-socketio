@@ -64,61 +64,53 @@ const SignUp = () => {
     const submitHandler = async () => {
         setIsLoading(true);
 
-        if (name === "" || email === "" || password === "" || confirmPassword === "") {
-            toast({
-                title: "Please fill all fields",
-                status: "warning",
-                duration: 5000,
-                isClosable: true,
-                position: "bottom"
-            })
-
-            return;
-        }
-
-        if (password !== confirmPassword) {
-            toast({
-                title: "Password did not match",
-                status: "warning",
-                duration: 5000,
-                isClosable: true,
-                position: "bottom"
-            })
-
-            return;
-        }
-
         try {
+            if (name === "" || email === "" || password === "" || confirmPassword === "") {
+                toast({
+                    title: "Please fill all fields",
+                    status: "warning",
+                    duration: 5000,
+                    isClosable: true,
+                    position: "bottom"
+                })
+
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                toast({
+                    title: "Password and Confirm Password Did Not Match",
+                    status: "warning",
+                    duration: 5000,
+                    isClosable: true,
+                    position: "bottom"
+                })
+
+                return;
+            }
+
             const config = {
                 headers: {
                     "Content-type": "application/json"
                 }
             }
-            const { data } = await axios.post("/api/user/signup", { name, email, password, pic }, config);
+            const response = await axios.post("/api/user/signup", { name, email, password, pic }, config);
 
-            console.log(data);
-            if (data) {
+            if (response?.data) {
                 toast({
-                    title: "Sign up Completed",
+                    title: "Signed Up Successfully",
                     status: "success",
                     duration: 5000,
                     isClosable: true,
                     position: "bottom"
                 })
+
+                localStorage.setItem("userInfo", JSON.stringify(response?.data));
+                navigate("/chat");
             }
-            setIsLoading(false);
-            localStorage.setItem("userInfo", JSON.stringify(data));
-            navigate("/chat");
         } catch (err) {
             console.log(err);
-            toast({
-                title: "Error Occured",
-                description: err.response.data.message,
-                status: "error",
-                duration: 5000,
-                isClosable: true,
-                position: "bottom"
-            })
+        } finally {
             setIsLoading(false);
         }
     }

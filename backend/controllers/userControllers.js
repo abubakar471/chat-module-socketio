@@ -4,68 +4,71 @@ import Chat from "../models/chatModel.js";
 import Message from "../models/messageModel.js";
 
 export const SignUp = async (req, res) => {
-    const { name, email, password, pic } = req.body;
-    console.log(req.body);
-    if (!name || !email || !password) {
-        res.status(400);
-        throw new Error("Please fill all fields");
-    }
+    try {
+        const { name, email, password, pic } = req.body;
 
-    const userExists = await User.findOne({ email: email })
+        if (!name || !email || !password) {
+            res.status(400).json("Please fill all fields");
+        }
 
-    if (userExists) {
-        res.status(400);
-        throw new Error("User already exists!");
-    }
+        const userExists = await User.findOne({ email: email })
 
-    const user = new User({
-        name, email, password, pic
-    });
+        if (userExists) {
+            return res.status(400).json("User already exists!");
+        }
 
-    const savedUser = await user.save();
+        const user = new User({
+            name, email, password, pic
+        });
 
-    if (savedUser) {
-        res.status(201).json({
-            _id: savedUser._id,
-            name: savedUser.name,
-            email: savedUser.email,
-            pic: savedUser.pic,
-            token: generateToken(savedUser._id)
-        })
-    } else {
-        res.status(400);
-        throw new Error("Failed to create new user!");
+        const savedUser = await user.save();
+
+        if (savedUser) {
+            return res.status(201).json({
+                _id: savedUser._id,
+                name: savedUser.name,
+                email: savedUser.email,
+                pic: savedUser.pic,
+                token: generateToken(savedUser._id)
+            })
+        } else {
+            return res.status(400).json("Sign Up Failed. Try Again Later");
+        }
+    } catch (err) {
+        console.log(err);
+
+        return res.status(500).json("Something Went Wrong!");
     }
 }
 
 export const authUser = async (req, res) => {
-    const { email, password, fcmToken } = req.body;
+    try {
+        const { email, password, fcmToken } = req.body;
 
-    const user = await User.findOne({ email: email });
+        const user = await User.findOne({ email: email });
 
-    console.log("fcm_token : ", fcmToken);
-
-    if (user && (await user.matchPassword(password))) {
-        if (fcmToken) {
-            const updateToken = await User.findOneAndUpdate({ email: email }, { fcmToken: fcmToken }, { new: true });
+        if (user && (await user.matchPassword(password))) {
+            if (fcmToken) {
+                const updateToken = await User.findOneAndUpdate({ email: email }, { fcmToken: fcmToken }, { new: true });
+            }
+            return res.json({
+                user: {
+                    _id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    pic: user.pic,
+                    fcmToken: fcmToken,
+                    token: generateToken(user._id)
+                },
+                notification: user.notification
+            })
+        } else {
+            return res.status(403).json("Invalid Email or Password");
         }
-        res.json({
-            user: {
-                _id: user._id,
-                name: user.name,
-                email: user.email,
-                pic: user.pic,
-                fcmToken: fcmToken,
-                token: generateToken(user._id)
-            },
-            notification: user.notification
-        })
-    } else {
-        res.status(401);
-        throw new Error("Invalid Email or Password");
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json("Something Went Wrong");
     }
-
-
 }
 
 export const allUsers = async (req, res) => {

@@ -24,6 +24,7 @@ const ChatProvixer = ({ children }) => {
         function (error) {
             let res = error.response;
             console.log(error);
+            
             if (res.status === 401 && res.config && !res.config.__isRetryRequest) {
                 setUser(null);
                 setSelectedChat(null);
@@ -33,6 +34,26 @@ const ChatProvixer = ({ children }) => {
             }
 
             if (res.status === 400) {
+                toast({
+                    title: error.response.data,
+                    status: "warning",
+                    duration: 5000,
+                    isClosable: true,
+                    position: "bottom"
+                })
+            }
+
+            if (res.status === 403) {
+                toast({
+                    title: error.response.data,
+                    status: "warning",
+                    duration: 5000,
+                    isClosable: true,
+                    position: "bottom"
+                })
+            }
+
+            if (res.status === 500) {
                 toast({
                     title: error.response.data,
                     status: "warning",
