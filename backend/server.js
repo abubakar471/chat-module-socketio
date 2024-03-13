@@ -14,7 +14,7 @@ const fcm = new FCM(serverKey);
 const io = new Server(server, {
     pingTimeout: 60000,
     cors: {
-        origin: "http://localhost:3000"
+        origin: process.env.CLIENT_URL
     }
 })
 dotenv.config();
@@ -46,7 +46,7 @@ app.use("/api/user", userRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/message", messageRoutes);
 
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 9000;
 
 server.listen(port, () => {
     console.log(`server is running on port ${port}`.yellow.bold);

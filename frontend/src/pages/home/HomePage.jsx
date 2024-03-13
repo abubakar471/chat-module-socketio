@@ -12,11 +12,15 @@ const HomePage = ({ fcmToken, setFcmToken }) => {
 
 
     useEffect(() => {
-        const user = JSON.parse(localStorage.getItem("userInfo"));
 
-        if (user) {
-            navigate("/chat");
+        if (localStorage.getItem("userInfo")) {
+            const user = JSON.parse(localStorage.getItem("userInfo"));
+
+            if (user) {
+                navigate("/chat");
+            }
         }
+
 
     }, [navigate]);
 

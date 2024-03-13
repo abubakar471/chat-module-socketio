@@ -7,11 +7,13 @@ import MyChats from "../../components/MyChats/MyChats";
 import ChatBox from "../../components/ChatBox/ChatBox";
 import { getToken, isSupported } from "firebase/messaging";
 import { messaging } from "../../config/firebase/firebase";
+import { useNavigate } from "react-router-dom";
 
 const ChatPage = () => {
     const { user } = ChatState();
     const [fetchAgain, setFetchAgain] = useState(false);
     const [fcmToken, setFcmToken] = useState(null);
+    const navigate = useNavigate();
 
     async function requestPermission() {
         const serviceWorkerReady = await navigator.serviceWorker.ready;
@@ -26,7 +28,7 @@ const ChatPage = () => {
                         const token = await getToken(messaging, {
                             vapidKey: "BP-QVsqGtY7QxTcUcFdPKHPKVuzLsXFFiAzb13QTKxhZWNA1OijI-QyaKZIv8lO0syQtun3r_0g7mYjYn0QUaZw",
                         });
-                        // console.log("Token Gen in chat page", token);
+                        console.log("Token Gen in chat page", token);
                         setFcmToken(token);
 
                         if (token) {
@@ -63,6 +65,12 @@ const ChatPage = () => {
 
     }, [user])
 
+
+    useEffect(() => {
+        if (!user) {
+            navigate("/");
+        }
+    }, [])
     return (
         <div style={{ width: "100%" }}>
             {user && <SideDrawer />}

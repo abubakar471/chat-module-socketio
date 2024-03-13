@@ -76,7 +76,7 @@ const MyChats = ({ fetchAgain }) => {
     }
 
     useEffect(() => {
-        setLoggedInUser(JSON.parse(localStorage.getItem("userInfo")));
+        setLoggedInUser(JSON.parse(window.localStorage.getItem("userInfo")));
         fetchChats();
     }, [fetchAgain])
 
@@ -128,7 +128,7 @@ const MyChats = ({ fetchAgain }) => {
                             {
                                 chats.map((chat) => (
                                     <Box
-                                        key={chat._id}
+                                        key={chat?._id}
                                         cursor="pointer"
                                         borderRadius="lg"
                                         px={3}
@@ -140,16 +140,16 @@ const MyChats = ({ fetchAgain }) => {
                                         <p
                                             style={{ display: "flex", alignItems: "center", gap: "5px", flex: "2", color: selectedChat === chat ? "white" : "black", padding: "5px 0" }}
                                             onClick={() => {
-                                                setNotification(notification.filter(n => n.chat._id !== chat._id));
+                                                setNotification(notification.filter(n => n?.chat?._id !== chat?._id));
                                                 removeNotification(chat);
                                                 setSelectedChat(chat);
                                             }}>
                                             {isDeleting && <Spinner colorScheme="red.500" />}
                                             {
                                                 !chat.isGroupChat ? (
-                                                    getSender(loggedInUser, chat.users)
+                                                    getSender(loggedInUser, chat?.users)
                                                 ) : (
-                                                    chat.chatName
+                                                    chat?.chatName
                                                 )
                                             }
                                         </p>

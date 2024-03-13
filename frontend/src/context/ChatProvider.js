@@ -24,7 +24,7 @@ const ChatProvixer = ({ children }) => {
         function (error) {
             let res = error.response;
             console.log(error);
-            
+
             if (res.status === 401 && res.config && !res.config.__isRetryRequest) {
                 setUser(null);
                 setSelectedChat(null);
@@ -66,20 +66,21 @@ const ChatProvixer = ({ children }) => {
     )
 
     useEffect(() => {
-        const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-        // const userNotification = JSON.parse(localStorage.getItem("userNotification"));
+        // const userInfo = JSON.parse(window.localStorage.getItem("userInfo"));
+        let userInfo = null;
 
-        // if (userNotification?.length > 0) {
-        //     setNotification(userNotification);
-        // }
-
+        if(window.localStorage.getItem("userInfo")){
+            userInfo = JSON.parse(window.localStorage.getItem("userInfo"));
+            setUser(userInfo);
+        }
         if (userInfo) {
+            
             const fetchNotifications = async () => {
 
                 const config = {
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: `Bearer ${userInfo.token}`
+                        Authorization: `Bearer ${userInfo?.token}`
                     }
                 }
 
@@ -93,14 +94,14 @@ const ChatProvixer = ({ children }) => {
             }
 
             fetchNotifications();
+
         }
 
 
-        setUser(userInfo);
 
-        if (!userInfo) {
-            navigate("/");
-        }
+        // if (!userInfo) {
+        //     navigate("/");
+        // }
 
     }, [navigate]);
 

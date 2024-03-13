@@ -14,12 +14,12 @@ const ProfileModal = ({ user, children }) => {
 
             <Modal isOpen={isOpen} onClose={onClose} isCentered size="lg">
                 <ModalOverlay />
-                <ModalContent h="410px" margin="10px">
+                <ModalContent h="410px" marginX="40px" padding="20px">
                     <ModalHeader display="flex" justifyContent="center" fontFamily="Work sans" fontSize="40px">{user.name}</ModalHeader>
                     <ModalCloseButton />
-                    <ModalBody display="flex" flexDir="column" alignItems="center" justifyContent="space-between">
+                    <ModalBody display="flex" flexDir="column" alignItems="center" justifyContent="space-between" paddingX="80px">
                         <Image borderRadius="full" boxSize="150px" src={user.pic} alt={user.name} />
-                        <Text fontFamily="Work sans" fontSize={{ base: "28px", md: "30px" }}>E-mail : {user.email}</Text>
+                        <Text fontFamily="Work sans" fontSize={{ base: "20px", md: "20px" }}>E-mail : {user.email}</Text>
                     </ModalBody>
 
                     <ModalFooter>

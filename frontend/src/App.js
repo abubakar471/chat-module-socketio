@@ -5,6 +5,9 @@ import ChatPage from './pages/chat/ChatPage';
 import { useEffect, useState } from 'react';
 import { getToken } from 'firebase/messaging';
 import { messaging } from './config/firebase/firebase';
+import LogInWithIqSocial from './pages/LogInWithIqSocial/LogInWithIqSocial';
+// import LoginWithIqSocial from './components/LoginWithIqSocial/LoginWithIqSocial';
+
 
 function App() {
   const [fcmToken, setFcmToken] = useState(null);
@@ -19,13 +22,15 @@ function App() {
           console.log('Service worker registration failed, error:', err);
         });
     }
-    
+
   }, [])
   return (
     <div className='App'>
       <Routes>
         <Route path='/' element={<HomePage fcmToken={fcmToken} setFcmToken={setFcmToken} />} />
         <Route path='/chat' element={<ChatPage fcmToken={fcmToken} setFcmToken={setFcmToken} />} />
+        {/* <Route path="/login-with-iqsocial" element={<LoginWithIqSocial fcmToken={fcmToken} setFcmToken={setFcmToken} />} /> */}
+        <Route path="/login-with-iqsocial" element={<LogInWithIqSocial fcmToken={fcmToken} setFcmToken={setFcmToken} />} />
       </Routes>
     </div>
   );

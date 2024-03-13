@@ -1,7 +1,8 @@
 import User from "../models/userModel.js";
-import { generateToken } from "../config/generateToken.js";
+import { generateToken, generateSSOTokenForIqSocial } from "../config/generateToken.js";
 import Chat from "../models/chatModel.js";
 import Message from "../models/messageModel.js";
+import bcrypt from "bcryptjs";
 
 export const SignUp = async (req, res) => {
     try {
@@ -17,8 +18,11 @@ export const SignUp = async (req, res) => {
             return res.status(400).json("User already exists!");
         }
 
+
+        const salt = await bcrypt.genSalt(10);
+        let hashedPassword = await bcrypt.hash(password, salt);
         const user = new User({
-            name, email, password, pic
+            name, email, password: hashedPassword, pic
         });
 
         const savedUser = await user.save();
@@ -46,7 +50,9 @@ export const authUser = async (req, res) => {
         const { email, password, fcmToken } = req.body;
 
         const user = await User.findOne({ email: email });
+        console.log(user);
 
+    
         if (user && (await user.matchPassword(password))) {
             if (fcmToken) {
                 const updateToken = await User.findOneAndUpdate({ email: email }, { fcmToken: fcmToken }, { new: true });
@@ -58,6 +64,7 @@ export const authUser = async (req, res) => {
                     email: user.email,
                     pic: user.pic,
                     fcmToken: fcmToken,
+                    chatWidgetApiToken: user.chatWidgetApiToken,
                     token: generateToken(user._id)
                 },
                 notification: user.notification
@@ -68,6 +75,205 @@ export const authUser = async (req, res) => {
     } catch (err) {
         console.log(err);
         return res.status(500).json("Something Went Wrong");
+    }
+}
+
+export const loginWithIqSocial = async (req, res) => {
+    const { username, userId, email, password, fcmToken, chatWidgetApiToken } = req.body;
+
+
+    if (email) {
+        const user = await User.findOne({ email: email });
+
+        if (user) {
+            console.log({ email, password })
+            if (user && (await user.matchPassword(password))) {
+                let updatedToken = fcmToken;
+
+                if (fcmToken) {
+                    const updatedUser = await User.findOneAndUpdate({ email: email }, { fcmToken: fcmToken }, { new: true });
+
+                    updatedToken = updatedUser.fcmToken;
+                    console.log('this is the updated token : \n', updatedToken)
+                }
+
+
+                const newApiToken = generateSSOTokenForIqSocial(user?._id);
+                const updatedUserWithApiToken = await User.findOneAndUpdate({ email: email }, { chatWidgetApiToken: newApiToken }, { new: true })
+
+                return res.json({
+                    user: {
+                        _id: user._id,
+                        name: user.name,
+                        email: user.email,
+                        pic: user.pic,
+                        fcmToken: updatedToken,
+                        token: generateToken(user._id),
+                        chatWidgetApiToken: updatedUserWithApiToken?.chatWidgetApiToken
+                    },
+                    notification: user.notification
+                })
+            } else {
+                return res.status(403).json("Invalid Email or Password");
+            }
+
+            return res.status(200).json({
+                success: true,
+                user
+            })
+        } else {
+            // registering new user
+            try {
+                if (!username || !email || !password) {
+                    res.status(400).json("Please fill all fields");
+                }
+
+                const salt = await bcrypt.genSalt(10);
+                let hashedPassword = await bcrypt.hash(password, salt);
+
+                const user = new User({
+                    name: username, email, password: hashedPassword,
+                    iqSocialId: userId
+                });
+
+                const savedUser = await user.save();
+
+                let chatWidgetApiToken = null;
+
+                if (savedUser) {
+                    chatWidgetApiToken = generateSSOTokenForIqSocial(savedUser._id);
+
+                    await User.findByIdAndUpdate(savedUser._id, { chatWidgetApiToken: chatWidgetApiToken }, { new: true })
+                }
+
+                if (savedUser) {
+                    return res.status(201).json({
+                        user: {
+                            _id: savedUser._id,
+                            name: savedUser.name,
+                            email: savedUser.email,
+                            pic: savedUser.pic,
+                            chatWidgetApiToken,
+                            token: generateToken(savedUser._id)
+                        }
+                    })
+                } else {
+                    return res.status(400).json("Sign Up Failed. Try Again Later");
+                }
+            } catch (err) {
+                console.log(err);
+
+                return res.status(500).json("Something Went Wrong!");
+            }
+        }
+    }
+
+}
+
+export const loginWithIqSocialSocialAuth = async (req, res) => {
+    const { username, userId, email, password, fcmToken, chatWidgetApiToken } = req.body;
+
+    try {
+        if (!username || !email || !userId) {
+            res.status(400).json("Email or Username or IqSocial User Id not defined");
+        }
+
+        const user = await User.findOne({ email: email });
+
+        if (user) {
+            let updatedToken = fcmToken;
+
+            if (fcmToken) {
+                const updatedUser = await User.findOneAndUpdate({ email: email }, { fcmToken: fcmToken }, { new: true });
+
+                updatedToken = updatedUser.fcmToken;
+                console.log('this is the updated token : \n', updatedToken)
+            }
+
+            const newApiToken = generateSSOTokenForIqSocial(user?._id);
+            const updatedUserWithApiToken = await User.findOneAndUpdate({ email: email }, { chatWidgetApiToken: newApiToken }, { new: true })
+            return res.json({
+                user: {
+                    _id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    pic: user.pic,
+                    fcmToken: updatedToken,
+                    token: generateToken(user._id),
+                    chatWidgetApiToken: updatedUserWithApiToken?.chatWidgetApiToken
+                },
+                notification: user.notification
+            })
+
+        } else {
+            // registering new user
+            try {
+                if (!username || !email) {
+                    res.status(400).json("Please fill all fields");
+                }
+
+                const user = new User({
+                    name: username, email,
+                    iqSocialId: userId
+                });
+
+                const savedUser = await user.save();
+
+                let chatWidgetApiToken = null;
+
+                if (savedUser) {
+                    chatWidgetApiToken = generateSSOTokenForIqSocial(savedUser._id);
+
+                    await User.findByIdAndUpdate(savedUser._id, { chatWidgetApiToken: chatWidgetApiToken }, { new: true })
+                }
+
+                if (savedUser) {
+                    return res.status(201).json({
+                        user: {
+                            _id: savedUser._id,
+                            name: savedUser.name,
+                            email: savedUser.email,
+                            pic: savedUser.pic,
+                            chatWidgetApiToken,
+                            token: generateToken(savedUser._id)
+                        }
+                    })
+                } else {
+                    return res.status(400).json("Sign Up Failed. Try Again Later");
+                }
+            } catch (err) {
+                console.log(err);
+
+                return res.status(500).json("Something Went Wrong!");
+            }
+        }
+
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).json("Internal Server Error!");
+    }
+}
+
+export const updatePasswordFromIqSocial = async (req, res) => {
+    const { email, password, userId } = req.body;
+
+    if (!email || !password) {
+        return res.status(400).json("Email or Password Not Defined!");
+    }
+
+    const user = await User.findOne({ email: email });
+
+    if (user) {
+        const salt = await bcrypt.genSalt(10);
+        let hashedPassword = await bcrypt.hash(password, salt);
+        const updatedUser = await User.findOneAndUpdate({ iqSocialId: userId }, { password: hashedPassword }, { new: true });
+
+        return res.status(200).json({
+            success: true
+        })
+    } else {
+        return res.status(404).json("User Not Found!");
     }
 }
 
@@ -102,7 +308,6 @@ export const getNotifications = async (req, res) => {
 export const saveNotification = async (req, res) => {
     const { message } = req.body;
 
-    console.log("saving notifi : ", message)
     try {
         const user = await User.findById(req.user._id);
         let notifications = user.notification;
