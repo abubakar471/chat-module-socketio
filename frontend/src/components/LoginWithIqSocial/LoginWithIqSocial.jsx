@@ -12,7 +12,7 @@ const LoginWithIqSocial = ({ fcmToken, setFcmToken }) => {
     useEffect(() => {
         const handleReceiveMessage = async (event) => {
 
-            if (event.origin !== 'http://localhost:4000') {
+            if (event.origin !== process.env.REACT_APP_IQSOCIAL_CLIENT) {
                 return;
             }
 
@@ -22,7 +22,7 @@ const LoginWithIqSocial = ({ fcmToken, setFcmToken }) => {
             if (type === 'getLocalStorageData') {
                 const localStorageData = { userInfo: window.localStorage.getItem("userInfo") ? JSON.parse(window.localStorage.getItem("userInfo")) : null };
 
-                window.parent.postMessage({ type: 'getLocalStorageData', data: localStorageData }, 'http://localhost:4000');
+                window.parent.postMessage({ type: 'getLocalStorageData', data: localStorageData }, process.env.REACT_APP_IQSOCIAL_CLIENT);
             }
 
             if (type === 'authenticate') {
@@ -46,7 +46,7 @@ const LoginWithIqSocial = ({ fcmToken, setFcmToken }) => {
                         type: 'authenticated', data: {
                             success: true,
                         }
-                    }, 'http://localhost:4000');
+                    }, process.env.REACT_APP_IQSOCIAL_CLIENT);
                     navigate("/chat");
                 }
             }
