@@ -40,7 +40,7 @@ mongoose.connect(process.env.MONGO_URI)
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors({
-    origin: [process.env.CLIENT_URL, process.env.IQSOCIAL_SERVER]
+    origin: [process.env.CLIENT_URL, process.env.IQSOCIAL_API_URL]
 }))
 app.use("/api/user", userRoutes);
 app.use("/api/chat", chatRoutes);
