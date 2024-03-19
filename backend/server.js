@@ -43,7 +43,9 @@ app.use(express.urlencoded({ extended: false }));
 //     origin: [process.env.CLIENT_URL, process.env.IQSOCIAL_API_URL]
 // }))
 
-app.use(cors());
+app.use(cors({
+    origin : process.env.CLIENT_URL
+}));
 app.use("/api/user", userRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/message", messageRoutes);
