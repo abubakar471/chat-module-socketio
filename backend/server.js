@@ -44,6 +44,7 @@ app.use(express.urlencoded({ extended: false }));
 // }))
 
 app.use(cors({
+    credentials : true,
     origin : process.env.CLIENT_URL
 }));
 app.use("/api/user", userRoutes);
