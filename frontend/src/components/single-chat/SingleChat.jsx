@@ -19,7 +19,7 @@ import { MdReply } from "react-icons/md";
 // import addNotification from "react-push-notification";
 import serviceKey from "../../servcie_key.json"
 
-// const ENDPOINT = "http://localhost:8000"
+// const ENDPOINT = "http://localhost:9000"
 
 const ENDPOINT = process.env.REACT_APP_API_URL;
 
