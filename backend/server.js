@@ -20,12 +20,12 @@ const fcm = new FCM(serverKey);
 // })
 
 // production socket config
-// const io = new Server(server, {
-//     pingTimeout: 60000,
-//     cors: {
-//         origin: process.env.CLIENT_URL
-//     }
-// })
+const io = new Server(server, {
+    pingTimeout: 60000,
+    cors: {
+        origin: process.env.CLIENT_URL
+    }
+})
 
 dotenv.config();
 
