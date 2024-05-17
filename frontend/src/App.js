@@ -12,18 +12,18 @@ import LogInWithIqSocial from './pages/LogInWithIqSocial/LogInWithIqSocial';
 function App() {
   const [fcmToken, setFcmToken] = useState(null);
 
-  useEffect(() => {
-    console.log("navigator fires in App.js")
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('firebase-messaging-sw.js')
-        .then(function (registration) {
-          console.log('Registration successful, scope is:', registration.scope);
-        }).catch(function (err) {
-          console.log('Service worker registration failed, error:', err);
-        });
-    }
+  // useEffect(() => {
+  //   console.log("navigator fires in App.js")
+  //   if ('serviceWorker' in navigator) {
+  //     navigator.serviceWorker.register('firebase-messaging-sw.js')
+  //       .then(function (registration) {
+  //         console.log('Registration successful, scope is:', registration.scope);
+  //       }).catch(function (err) {
+  //         console.log('Service worker registration failed, error:', err);
+  //       });
+  //   }
 
-  }, [])
+  // }, [])
   return (
     <div className='App'>
       <Routes>
