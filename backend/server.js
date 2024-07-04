@@ -61,6 +61,12 @@ app.use("/api/user", userRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/message", messageRoutes);
 
+// used only for vps deploy
+const _dirname = path.dirname("");
+const buildpath = path.join(_dirname,"../frontend/build");
+app.use(express.static(buildpath));
+
+
 const port = process.env.PORT || 9000;
 
 server.listen(port, () => {
