@@ -52,7 +52,7 @@ export const authUser = async (req, res) => {
         const user = await User.findOne({ email: email });
         console.log(user);
 
-    
+
         if (user && (await user.matchPassword(password))) {
             if (fcmToken) {
                 const updateToken = await User.findOneAndUpdate({ email: email }, { fcmToken: fcmToken }, { new: true });
@@ -79,14 +79,16 @@ export const authUser = async (req, res) => {
 }
 
 export const loginWithIqSocial = async (req, res) => {
-    const { username, userId, email, password, fcmToken, chatWidgetApiToken } = req.body;
+    const { username, userId, email, password, fcmToken, chatWidgetApiToken, profilePicture } = req.body;
 
-
+    console.log("received from iq sonet backend : ", req.body);
+    console.log(profilePicture)
     if (email) {
         const user = await User.findOne({ email: email });
 
         if (user) {
-            console.log({ email, password })
+            console.log({ email, password });
+
             if (user && (await user.matchPassword(password))) {
                 let updatedToken = fcmToken;
 
@@ -99,7 +101,7 @@ export const loginWithIqSocial = async (req, res) => {
 
 
                 const newApiToken = generateSSOTokenForIqSocial(user?._id);
-                const updatedUserWithApiToken = await User.findOneAndUpdate({ email: email }, { chatWidgetApiToken: newApiToken }, { new: true })
+                const updatedUserWithApiToken = await User.findOneAndUpdate({ email: email }, { chatWidgetApiToken: newApiToken, pic: profilePicture, iqSocialId : userId }, { new: true })
 
                 return res.json({
                     user: {
@@ -132,7 +134,10 @@ export const loginWithIqSocial = async (req, res) => {
                 let hashedPassword = await bcrypt.hash(password, salt);
 
                 const user = new User({
-                    name: username, email, password: hashedPassword,
+                    name: username,
+                    email,
+                    password: hashedPassword,
+                    pic: profilePicture,
                     iqSocialId: userId
                 });
 
@@ -142,7 +147,6 @@ export const loginWithIqSocial = async (req, res) => {
 
                 if (savedUser) {
                     chatWidgetApiToken = generateSSOTokenForIqSocial(savedUser._id);
-
                     await User.findByIdAndUpdate(savedUser._id, { chatWidgetApiToken: chatWidgetApiToken }, { new: true })
                 }
 
@@ -253,6 +257,30 @@ export const loginWithIqSocialSocialAuth = async (req, res) => {
         console.log(err);
         res.status(500).json("Internal Server Error!");
     }
+}
+
+export const resetPasswordWithIqSocial = async (req, res) => {
+    console.log("password reset request from iq social backend");
+    const { userId, email, username, newPassword } = req.body;
+    console.log('password reset data : ', req.body)
+    if (!email || !newPassword) {
+        return res.status(400).json("Email or Password Not Defined!");
+    }
+
+    const user = await User.findOne({ email: email });
+
+    if (user) {
+        const salt = await bcrypt.genSalt(10);
+        let hashedPassword = await bcrypt.hash(newPassword, salt);
+        const updatedUser = await User.findOneAndUpdate({ iqSocialId: userId }, { password: hashedPassword }, { new: true });
+
+        return res.status(200).json({
+            success: true
+        })
+    } else {
+        return res.status(404).json("User Not Found!");
+    }
+
 }
 
 export const updatePasswordFromIqSocial = async (req, res) => {
