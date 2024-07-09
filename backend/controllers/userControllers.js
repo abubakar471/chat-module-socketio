@@ -108,7 +108,7 @@ export const loginWithIqSocial = async (req, res) => {
                         _id: user._id,
                         name: user.name,
                         email: user.email,
-                        pic: user.pic,
+                        pic: profilePicture,
                         fcmToken: updatedToken,
                         token: generateToken(user._id),
                         chatWidgetApiToken: updatedUserWithApiToken?.chatWidgetApiToken
@@ -175,7 +175,9 @@ export const loginWithIqSocial = async (req, res) => {
 }
 
 export const loginWithIqSocialSocialAuth = async (req, res) => {
-    const { username, userId, email, password, fcmToken, chatWidgetApiToken } = req.body;
+    const { username, userId, email, password, fcmToken, chatWidgetApiToken, profilePicture } = req.body;
+    console.log("received from iq sonet backend for social auth: ", req.body);
+    console.log(profilePicture)
 
     try {
         if (!username || !email || !userId) {
@@ -195,13 +197,13 @@ export const loginWithIqSocialSocialAuth = async (req, res) => {
             }
 
             const newApiToken = generateSSOTokenForIqSocial(user?._id);
-            const updatedUserWithApiToken = await User.findOneAndUpdate({ email: email }, { chatWidgetApiToken: newApiToken }, { new: true })
+            const updatedUserWithApiToken = await User.findOneAndUpdate({ email: email }, { chatWidgetApiToken: newApiToken, pic: profilePicture, iqSocialId : userId}, { new: true })
             return res.json({
                 user: {
                     _id: user._id,
                     name: user.name,
                     email: user.email,
-                    pic: user.pic,
+                    pic: profilePicture,
                     fcmToken: updatedToken,
                     token: generateToken(user._id),
                     chatWidgetApiToken: updatedUserWithApiToken?.chatWidgetApiToken
@@ -218,7 +220,8 @@ export const loginWithIqSocialSocialAuth = async (req, res) => {
 
                 const user = new User({
                     name: username, email,
-                    iqSocialId: userId
+                    iqSocialId: userId,
+                    pic: profilePicture,
                 });
 
                 const savedUser = await user.save();

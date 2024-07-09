@@ -3,7 +3,7 @@ import { FaEye } from "react-icons/fa";
 
 const ProfileModal = ({ user, children }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
-
+    console.log("user pic : ", user)
     return (
         <>
             {children ? (
