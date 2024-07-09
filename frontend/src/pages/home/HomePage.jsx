@@ -26,7 +26,7 @@ const HomePage = ({ fcmToken, setFcmToken }) => {
 
     const registerServiceWorker = async () => {
         try {
-            const serviceWorkerRegistration = await navigator.serviceWorker.register("firebase-messaging-sw.js");
+            const serviceWorkerRegistration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
 
             await navigator.serviceWorker.ready;
 
@@ -36,7 +36,7 @@ const HomePage = ({ fcmToken, setFcmToken }) => {
                 applicationServerKey: "BP-QVsqGtY7QxTcUcFdPKHPKVuzLsXFFiAzb13QTKxhZWNA1OijI-QyaKZIv8lO0syQtun3r_0g7mYjYn0QUaZw"
             })
         } catch (err) {
-            const serviceWorkerRegistration = await navigator.serviceWorker.register("firebase-messaging-sw.js");
+            const serviceWorkerRegistration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
 
             await navigator.serviceWorker.ready;
 
